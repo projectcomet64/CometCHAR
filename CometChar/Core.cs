@@ -7,45 +7,59 @@ namespace CometChar
 {
     public static class Core
     {
-        public static async Task<byte[]> GetSegment04Bytes(string rom)
+        public static async Task<byte[]> GetSegmentBytes(string rom, int segment = 4)
         {
-            byte[] seg04load = new byte[4];
-            byte[] seg04offsets = new byte[8];
+            long position;
+            uint seg;
+            switch (segment)
+            {
+                case 0x17:
+                    position = 0x2ABCB8;
+                    seg = 0x17;
+                    break;
+                case 0x04:
+                default:
+                    position = 0x2ABCA0;
+                    seg = 0x04;
+                    break;
+            }
+            byte[] segload = new byte[4];
+            byte[] segoffsets = new byte[8];
             using (FileStream fs = new FileStream(rom, FileMode.Open, FileAccess.Read))
             {
-                await Task.Run(() => fs.Seek(0x2ABCA0, SeekOrigin.Begin));
-                await fs.ReadAsync(seg04load, 0, 4);
+                await Task.Run(() => fs.Seek(position, SeekOrigin.Begin));
+                await fs.ReadAsync(segload, 0, 4);
                 //await Task.Run(() => fs.Seek(0x4, SeekOrigin.Current));
-                await fs.ReadAsync(seg04offsets, 0, 8);
+                await fs.ReadAsync(segoffsets, 0, 8);
             }
-            if (seg04load[3] != 0x04)
+            if (segload[3] != seg)
             {
                 return new byte[0];
             }
             else
             {
-                return seg04offsets;
+                return segoffsets;
             }
         }
 
-        public static async Task<long> GetSegment04Offset(string rom)
+        public static async Task<long> GetSegmentOffset(string rom, int segment = 4)
         {
-            byte[] seg04load = await GetSegment04Bytes(rom);
-            byte[] seg04offset = seg04load.Take(4).ToArray();
-            Array.Reverse(seg04offset);
+            byte[] segload = await GetSegmentBytes(rom, segment);
+            byte[] segoffset = segload.Take(4).ToArray();
+            Array.Reverse(segoffset);
 
-            return await Task.Run(() => BitConverter.ToUInt32(seg04offset, 0));
+            return await Task.Run(() => BitConverter.ToUInt32(segoffset, 0));
         }
-        public static async Task<long> GetSegment04Length(string rom)
+        public static async Task<long> GetSegmentLength(string rom, int segment = 4)
         {
             uint start, end = 0;
-            byte[] seg04load = await GetSegment04Bytes(rom);
-            byte[] seg04offset = seg04load.Take(4).ToArray();
-            byte[] seg04end = seg04load.Skip(4).ToArray();
-            Array.Reverse(seg04offset);
-            Array.Reverse(seg04end);
-            start = await Task.Run(() => BitConverter.ToUInt32(seg04offset, 0));
-            end = await Task.Run(() => BitConverter.ToUInt32(seg04end, 0));
+            byte[] segload = await GetSegmentBytes(rom);
+            byte[] segoffset = segload.Take(4).ToArray();
+            byte[] segend = segload.Skip(4).ToArray();
+            Array.Reverse(segoffset);
+            Array.Reverse(segend);
+            start = await Task.Run(() => BitConverter.ToUInt32(segoffset, 0));
+            end = await Task.Run(() => BitConverter.ToUInt32(segend, 0));
             return end - start;
         }
     }
