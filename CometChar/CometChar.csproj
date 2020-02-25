@@ -40,8 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core.cs" />
-    <Compile Include="Geolayout.cs" />
+    <Compile Include="Base\Core.cs" />
+    <Compile Include="Base\Geolayout.cs" />
+    <Compile Include="Base\Structs\GeoLayoutInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

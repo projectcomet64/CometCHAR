@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static CometChar.Core;
+using CometChar.Structs;
 
 namespace CometChar
 {
@@ -90,7 +91,7 @@ namespace CometChar
             throw new Exception("Something went wrong while reading the Geo Layout. Unhandled command 0x" + data[0]);
         }
 
-        public static async Task<long> GetGeoLayoutLength(string rompath, bool retmargin = false)
+        public static async Task<GeoLayoutInformation> GetGeoLayoutLength(string rompath)
         {
             using (FileStream fs = new FileStream(rompath, FileMode.Open, FileAccess.Read))
             {
@@ -123,7 +124,7 @@ namespace CometChar
                     fs.Seek(offset + position, SeekOrigin.Begin);
                     byte[] fullgeocmd = new byte[length];
                     fs.Read(fullgeocmd, 0, length);
-                    
+
                     position += length;
 
                     //What will happen at specific nodes (Jumps and tabs)
@@ -132,14 +133,12 @@ namespace CometChar
                         case 0x1:
                             // Position + length is where the geolayout ends.
                             // We will return the difference between beginning and where we found the end.
-                            if (retmargin)
+                            GeoLayoutInformation glInfo = new GeoLayoutInformation
                             {
-                                return offset + startmargin;
-                            }
-                            else
-                            {
-                                return position - startmargin;
-                            }
+                                Length = position - startmargin,
+                                StartMargin = offset + startmargin
+                            };
+                            return glInfo;
                         case 0x3:
                             position = ra.Pop();
                             break;
@@ -147,8 +146,6 @@ namespace CometChar
                             // Some jumps don't return, but this may break a character mod
                             // Regardless, it's added for the sake of completeness
                             // Thanks, Kure
-
-
 
                             if (fullgeocmd[1] == 1)
                             {
@@ -171,7 +168,7 @@ namespace CometChar
                     command = fullgeocmd[0];
                 }
             }
-            return 0;
+            throw new Exception("Something happened while figuring out the information for the geolayout's length.");
         }
     }
 }
