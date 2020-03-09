@@ -40,17 +40,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\PatchFile.cs" />
     <Compile Include="Base\Core.cs" />
     <Compile Include="Base\Geolayout.cs" />
     <Compile Include="Base\Structs\GeoLayoutInformation.cs" />
+    <Compile Include="LZMA\Common\CRC.cs" />
+    <Compile Include="LZMA\Common\InBuffer.cs" />
+    <Compile Include="LZMA\Common\OutBuffer.cs" />
+    <Compile Include="LZMA\Compress\LZMA\LzmaBase.cs" />
+    <Compile Include="LZMA\Compress\LZMA\LzmaDecoder.cs" />
+    <Compile Include="LZMA\Compress\LZMA\LzmaEncoder.cs" />
+    <Compile Include="LZMA\Compress\LZ\IMatchFinder.cs" />
+    <Compile Include="LZMA\Compress\LZ\LzBinTree.cs" />
+    <Compile Include="LZMA\Compress\LZ\LzInWindow.cs" />
+    <Compile Include="LZMA\Compress\LZ\LzOutWindow.cs" />
+    <Compile Include="LZMA\Compress\RangeCoder\RangeCoder.cs" />
+    <Compile Include="LZMA\Compress\RangeCoder\RangeCoderBit.cs" />
+    <Compile Include="LZMA\Compress\RangeCoder\RangeCoderBitTree.cs" />
+    <Compile Include="LZMA\ICoder.cs" />
+    <Compile Include="LZMA\LZMAHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="LZMA\Common\" />
-    <Folder Include="LZMA\Compress\LzmaAlone\Properties\" />
-    <Folder Include="LZMA\Compress\LZMA\" />
-    <Folder Include="LZMA\Compress\LZ\" />
-    <Folder Include="LZMA\Compress\RangeCoder\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
