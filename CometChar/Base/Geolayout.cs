@@ -11,6 +11,11 @@ namespace CometChar
 {
     public static class Geolayout
     {
+        /// <summary>
+        /// Gets the length for a Geo Layout
+        /// </summary>
+        /// <param name="data">The read byte that is the command</param>
+        /// <returns>Unsigned integer with the total length of the command</returns>
         public static uint GetCommandLength(byte[] data)
         {
             switch (data[0])
@@ -91,82 +96,98 @@ namespace CometChar
             throw new Exception("Something went wrong while reading the Geo Layout. Unhandled command 0x" + data[0]);
         }
 
+        /// <summary>
+        /// Gets the WHOLE length of the GeoLayout, including the earliest jump possible. Here for compatibility purposes.
+        /// </summary>
+        /// <param name="fs">File path to ROM</param>
+        /// <returns>a GeoLayoutInformation struct which has the information for the Geo layout.</returns>
         public static async Task<GeoLayoutInformation> GetGeoLayoutLength(string rompath)
         {
-            using (FileStream fs = new FileStream(rompath, FileMode.Open, FileAccess.Read))
+            using (Stream fs = new FileStream(rompath, FileMode.Open, FileAccess.Read))
             {
-                //Read the load command from the segments table
-                byte[] loadcmd = new byte[8];
-                fs.Seek(0x2ABCE0, SeekOrigin.Begin);
-                await fs.ReadAsync(loadcmd, 0, 8);
-                long offset = Task.Run(() => GetSegmentOffset(rompath, loadcmd[4])).Result;
-                byte[] segoffset = loadcmd.Skip(4).ToArray();
-                segoffset = segoffset.Reverse().ToArray();
-                byte command = 0;
-                //Initial position: the offset at where it is in its segment
-                int position = BitConverter.ToInt32(segoffset, 0) & 0x00FFFFFF;
-                int oldposition = position;
-                int startmargin = position;
-                //We're gonna store the address we gotta jump back from here
-                Stack<int> ra = new Stack<int>();
-                while (command != 01)
+                return await GetGeoLayoutLength(fs);
+            }
+            
+        }
+
+        /// <summary>
+        /// Gets the WHOLE length of the GeoLayout, including the earliest jump possible.
+        /// </summary>
+        /// <param name="fs">ROM Stream</param>
+        /// <returns>a GeoLayoutInformation struct which has the information for the Geo layout.</returns>
+        public static async Task<GeoLayoutInformation> GetGeoLayoutLength(Stream fs)
+        {
+            //Read the load command from the segments table
+            byte[] loadcmd = new byte[8];
+            fs.Seek(0x2ABCE0, SeekOrigin.Begin);
+            await fs.ReadAsync(loadcmd, 0, 8);
+            long offset = Task.Run(() => GetSegmentOffset(fs, loadcmd[4])).Result;
+            byte[] segoffset = loadcmd.Skip(4).ToArray();
+            segoffset = segoffset.Reverse().ToArray();
+            byte command = 0;
+            //Initial position: the offset at where it is in its segment
+            int position = BitConverter.ToInt32(segoffset, 0) & 0x00FFFFFF;
+            int oldposition = position;
+            int startmargin = position;
+            //We're gonna store the address we gotta jump back from here
+            Stack<int> ra = new Stack<int>();
+            while (command != 01)
+            {
+                byte[] geocmd = new byte[4];
+                //Gotta restart from position
+                fs.Seek(offset + position, SeekOrigin.Begin);
+                await fs.ReadAsync(geocmd, 0, 4);
+                int length;
+
+                // Read length of the command we're reading right now
+                length = (int)GetCommandLength(geocmd);
+
+                //Uh, is this good practice?
+                fs.Seek(offset + position, SeekOrigin.Begin);
+                byte[] fullgeocmd = new byte[length];
+                fs.Read(fullgeocmd, 0, length);
+
+                position += length;
+
+                //What will happen at specific nodes (Jumps and tabs)
+                switch (fullgeocmd[0])
                 {
-                    byte[] geocmd = new byte[4];
-                    //Gotta restart from position
-                    fs.Seek(offset + position, SeekOrigin.Begin);
-                    await fs.ReadAsync(geocmd, 0, 4);
-                    int length;
+                    case 0x1:
+                        // Position + length is where the geolayout ends.
+                        // We will return the difference between beginning and where we found the end.
+                        GeoLayoutInformation glInfo = new GeoLayoutInformation
+                        {
+                            Length = position - startmargin,
+                            StartMargin = offset + startmargin
+                        };
+                        return glInfo;
+                    case 0x3:
+                        position = ra.Pop();
+                        break;
+                    case 0x2:
+                        // Some jumps don't return, but this may break a character mod
+                        // Regardless, it's added for the sake of completeness
+                        // Thanks, Kure
 
-                    // Read length of the command we're reading right now
-                    length = (int)GetCommandLength(geocmd);
+                        if (fullgeocmd[1] == 1)
+                        {
+                            ra.Push(position);
+                            position = BitConverter.ToInt32(fullgeocmd.Skip(4).Reverse().ToArray(), 0) & 0x00FFFFFF;
 
-                    //Uh, is this good practice?
-                    fs.Seek(offset + position, SeekOrigin.Begin);
-                    byte[] fullgeocmd = new byte[length];
-                    fs.Read(fullgeocmd, 0, length);
+                            // Another thing, we're constantly checking where does the actual data start
+                            // because it might be the case where it starts before the actual place
+                            // where everything is loaded in something like a huge SWITCH (0x0E).
 
-                    position += length;
-
-                    //What will happen at specific nodes (Jumps and tabs)
-                    switch (fullgeocmd[0])
-                    {
-                        case 0x1:
-                            // Position + length is where the geolayout ends.
-                            // We will return the difference between beginning and where we found the end.
-                            GeoLayoutInformation glInfo = new GeoLayoutInformation
+                            if (position < startmargin)
                             {
-                                Length = position - startmargin,
-                                StartMargin = offset + startmargin
-                            };
-                            return glInfo;
-                        case 0x3:
-                            position = ra.Pop();
-                            break;
-                        case 0x2:
-                            // Some jumps don't return, but this may break a character mod
-                            // Regardless, it's added for the sake of completeness
-                            // Thanks, Kure
-
-                            if (fullgeocmd[1] == 1)
-                            {
-                                ra.Push(position);
-                                position = BitConverter.ToInt32(fullgeocmd.Skip(4).Reverse().ToArray(), 0) & 0x00FFFFFF;
-
-                                // Another thing, we're constantly checking where does the actual data start
-                                // because it might be the case where it starts before the actual place
-                                // where everything is loaded in something like a huge SWITCH (0x0E).
-
-                                if (position < startmargin)
-                                {
-                                    startmargin = position;
-                                }
+                                startmargin = position;
                             }
-                            break;
-                    }
-                    //Are we still not done yet?
-                    //We are only done when we find a 01 command (End of Geo Layout)
-                    command = fullgeocmd[0];
+                        }
+                        break;
                 }
+                //Are we still not done yet?
+                //We are only done when we find a 01 command (End of Geo Layout)
+                command = fullgeocmd[0];
             }
             throw new Exception("Something happened while figuring out the information for the geolayout's length.");
         }
