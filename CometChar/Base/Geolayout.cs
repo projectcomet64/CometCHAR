@@ -71,6 +71,7 @@ namespace CometChar
                 // Most commands are 8 bytes long.
                 case 0x0:
                 case 0x2:
+                case 0xD:
                 case 0xE:
                 case 0x15:
                 case 0x16:
@@ -88,7 +89,6 @@ namespace CometChar
                 case 0x9:
                 case 0xB:
                 case 0xC:
-                case 0xD:
                 case 0x17:
                 case 0x20:
                     return 4;
