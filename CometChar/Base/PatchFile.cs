@@ -33,14 +33,14 @@ namespace CometChar
             }
             byte[] lenCompressed04 = new byte[4];
             byte[] lenCompressedGL = new byte[4];
-            byte[] CRC = new byte[4];
+            byte[] StartMargin = new byte[4];
             byte[] len04 = new byte[4];
             byte[] lenGL = new byte[4];
             byte[] segAddr = new byte[4];
 
             PatchStream.Read(lenCompressed04, 0, 4);
             PatchStream.Read(lenCompressedGL, 0, 4);
-            PatchStream.Read(CRC, 0, 4);
+            PatchStream.Read(StartMargin, 0, 4);
             PatchStream.Read(len04, 0, 4);
             PatchStream.Read(lenGL, 0, 4);
             PatchStream.Read(segAddr, 0, 4);
@@ -50,7 +50,7 @@ namespace CometChar
             pI.Features = BitConverter.ToUInt16(features, 0);
             pI.compSegment04Length = BitConverter.ToUInt32(lenCompressed04, 0);
             pI.compGeoLayoutLength = BitConverter.ToUInt32(lenCompressedGL, 0);
-            pI.CompressedCRC = BitConverter.ToUInt32(CRC, 0);
+            pI.GeoLayoutStartMargin = BitConverter.ToUInt32(StartMargin, 0);
             pI.Segment04Length = BitConverter.ToUInt32(len04, 0);
             pI.GeoLayoutLength = BitConverter.ToUInt32(lenGL, 0);
             pI.GeoLayoutSegOffset = BitConverter.ToUInt32(segAddr, 0);
@@ -60,6 +60,7 @@ namespace CometChar
         public static void CreatePatchFile(Stream ROMStream, string outFile)
         {
             bool GeoLayoutInSeg04 = false;
+            uint features = 0;
             using (FileStream fs = new FileStream(outFile, FileMode.Create, FileAccess.ReadWrite))
             {
                 long Seg04Offset = Task.Run(() => GetSegmentOffset(ROMStream)).Result;
@@ -75,6 +76,7 @@ namespace CometChar
                 if (GeoInfo.StartMargin > Seg04Offset && GeoInfo.StartMargin < Seg04Offset + Seg04Length)
                 {
                     GeoLayoutInSeg04 = true;
+                    features = (features | 2);
                 }
                 else
                 {
@@ -101,27 +103,16 @@ namespace CometChar
                     }
                 }
 
-                using (MemoryStream tempStream = new MemoryStream((int)(compressedGL.Length + compressedS04.Length)))
-                {
-                    CRC checksum = new CRC();
-                    checksum.Init();
-                    tempStream.Write(compressedS04.GetBuffer(), 0, (int)compressedS04.Length);
-                    tempStream.Write(compressedGL.GetBuffer(), 0, (int)compressedGL.Length);
-                    checksum.Update(tempStream.GetBuffer(), 0, (uint)tempStream.Length);
-                    CRCChecksum = checksum.GetDigest();
-                    tempStream.Flush();
-                }
-
                 ROMStream.Seek(0x2ABCE0, SeekOrigin.Begin);
                 ROMStream.Read(GeoLayoutSegAddr, 0, 8);
 
                 // Time to write everything
                 fs.Write(ASCII.GetBytes("CMTP".ToCharArray()), 0, 4);
                 fs.Write(new byte[] { 00, 01 }, 0, 2);
-                fs.Write(new byte[] { 00, 00 }, 0, 2);
+                fs.Write(BitConverter.GetBytes((ushort)features), 0, 2);
                 fs.Write(BitConverter.GetBytes((uint)compressedS04.Length), 0, 4);
                 fs.Write(BitConverter.GetBytes((uint)compressedGL.Length), 0, 4);
-                fs.Write(BitConverter.GetBytes(CRCChecksum), 0, 4);
+                fs.Write(BitConverter.GetBytes((uint)GeoInfo.StartMargin), 0, 4);
                 fs.Write(BitConverter.GetBytes(Seg04Length), 0, 4);
                 fs.Write(BitConverter.GetBytes(GeoInfo.Length), 0, 4);
                 fs.Write(GeoLayoutSegAddr.Skip(4).ToArray(), 0, 4);
