@@ -72,7 +72,7 @@ namespace CometChar
                 ROMStream.Seek(Seg04Offset, SeekOrigin.Begin);
                 ROMStream.Read(Seg04Data, 0, (int)Seg04Length);
 
-                if (GeoInfo.StartMargin < Seg04Offset && GeoInfo.StartMargin > Seg04Offset + Seg04Length)
+                if (GeoInfo.StartMargin > Seg04Offset && GeoInfo.StartMargin < Seg04Offset + Seg04Length)
                 {
                     GeoLayoutInSeg04 = true;
                 }
@@ -89,6 +89,7 @@ namespace CometChar
                 using (MemoryStream ms = new MemoryStream(Seg04Data))
                 {
                     LZMA.Compress(ms, compressedS04, LzmaSpeed.Medium, DictionarySize.Medium);
+                    ms.Flush();
                 }
 
                 if (!GeoLayoutInSeg04)
@@ -96,6 +97,7 @@ namespace CometChar
                     using (MemoryStream ms = new MemoryStream(GeoLayoutData))
                     {
                         LZMA.Compress(ms, compressedGL, LzmaSpeed.Medium, DictionarySize.Medium);
+                        ms.Flush();
                     }
                 }
 
@@ -107,6 +109,7 @@ namespace CometChar
                     tempStream.Write(compressedGL.GetBuffer(), 0, (int)compressedGL.Length);
                     checksum.Update(tempStream.GetBuffer(), 0, (uint)tempStream.Length);
                     CRCChecksum = checksum.GetDigest();
+                    tempStream.Flush();
                 }
 
                 ROMStream.Seek(0x2ABCE0, SeekOrigin.Begin);
@@ -124,6 +127,9 @@ namespace CometChar
                 fs.Write(GeoLayoutSegAddr.Skip(4).ToArray(), 0, 4);
                 fs.Write(compressedS04.GetBuffer(), 0, (int)compressedS04.Length);
                 fs.Write(compressedGL.GetBuffer(), 0, (int)compressedGL.Length);
+                compressedGL.Flush();
+                compressedS04.Flush();
+                ROMStream.Dispose();
             }
         }
     }
