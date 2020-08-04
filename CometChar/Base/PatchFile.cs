@@ -55,6 +55,23 @@ namespace CometChar
             return pI;
         }
 
+        public static async Task<bool> CheckROMBigEndian(string inROM)
+        {
+            using (FileStream romStream = new FileStream(inROM, FileMode.Open, FileAccess.Read))
+            {
+                byte[] headerArr = new byte[] { 0x80, 0x37, 0x12, 0x40 };
+                byte[] readArr = new byte[4];
+                romStream.Seek(0x0, SeekOrigin.Begin);
+                await romStream.ReadAsync(readArr, 0, 4);
+                if (headerArr != readArr)
+                {
+                    return false;
+                }
+                return true;
+            }
+            
+        }
+
         public static async void PatchROM(string inROM, Stream patchStream, string outROM, IProgress<int> prog)
         {
             PatchInformation pInfo;
@@ -63,7 +80,13 @@ namespace CometChar
             MemoryStream uncompS04 = new MemoryStream((int)pInfo.Segment04Length);
             MemoryStream uncompGL = new MemoryStream((int)pInfo.GeoLayoutLength);
 
-            // Decompressing the compressed data
+            bool validROM = await CheckROMBigEndian(inROM);
+            if (!validROM)
+            {
+                throw new InvalidROMException("This ROM is not a Big Endian (z64) ROM.");
+            }
+
+            // Decompressing the compressed data and checking the ROM's byte order
             using (FileStream romStream = new FileStream(inROM, FileMode.Open, FileAccess.Read))
             {
                 romStream.Seek(0x20, SeekOrigin.Begin);

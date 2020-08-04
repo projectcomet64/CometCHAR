@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\InvalidROMException.cs" />
     <Compile Include="Base\PatchFile.cs" />
     <Compile Include="Base\Core.cs" />
     <Compile Include="Base\Geolayout.cs" />
