@@ -5,20 +5,62 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
 
-
+        <SolidColorBrush x:Key="backgroundColor" Color="#FF0F0F0F"/>
+        <SolidColorBrush x:Key="backgroundColorSecondary" Color="#FF060606"/>
         <SolidColorBrush x:Key="buttonOutline" Color="#FF0079F1"/>
         <SolidColorBrush x:Key="buttonPushed" Color="#FF0057AE"/>
         <SolidColorBrush x:Key="textBoxActive" Color="#7F747474"/>
         <Style TargetType="{x:Type Window}">
-            <Setter Property="Background" Value="#FF060606" />
+            <Setter Property="Background" Value="{StaticResource backgroundColor}" />
             <Setter Property="Foreground" Value="#FFF1F1F1" />
         </Style>
         <Style TargetType="{x:Type Label}">
             <Setter Property="Foreground" Value="White"/>
         </Style>
+        <Style TargetType="{x:Type TabItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Grid Name="Panel" Margin="0,0">
+                            <Border Name="PanelBorder" BorderThickness="0 2px 0 0">
+                                <ContentPresenter x:Name="ContentSite"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ContentSource="Header"
+                                        Margin="10,3"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="PanelBorder" Property="BorderBrush" Value="{StaticResource buttonOutline}"/>
+                                <Setter TargetName="Panel" Property="Background" Value="{StaticResource backgroundColorSecondary}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="False">
+                                <Setter TargetName="PanelBorder" Property="BorderBrush" Value="{StaticResource buttonPushed}"/>
+                                <Setter TargetName="Panel" Property="Background" Value="{StaticResource backgroundColor}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="{StaticResource buttonOutline}"/>
+            <Setter Property="Foreground" Value="#FFF"/>
+            <Setter Property="BorderThickness" Value="0 2px 0 0"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="Background" Value="{StaticResource buttonOutline}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="{x:Type TabControl}">
+            <Setter Property="BorderThickness" Value="0 0 0 0" />
+            <Setter Property="Background" Value="{StaticResource backgroundColorSecondary}"/>
+        </Style>
+
         <Style TargetType="{x:Type Button}">
             <Setter Property="Foreground" Value="#FFF"/>
-            <Setter Property="Background" Value="#FF0F0F0F"/>
+            <Setter Property="Background" Value="{StaticResource backgroundColor}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
@@ -30,7 +72,7 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource buttonOutline}"/>  
+                    <Setter Property="Background" Value="{StaticResource buttonOutline}"/>
                 </Trigger>
 
                 <Trigger Property="IsPressed" Value="True">

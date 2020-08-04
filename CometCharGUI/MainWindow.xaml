@@ -7,15 +7,36 @@
         mc:Ignorable="d"
         Title="CometCHAR // CMTP Patcher GUI" Height="312" Width="429" Background="#FF111111">
     <Grid Margin="10">
-        <Button x:Name="btnPatch" Content="Patch" HorizontalAlignment="Left" Margin="300,220,0,0" VerticalAlignment="Top" Width="91" Height="26"/>
-        <TextBox x:Name="tbPatch" HorizontalAlignment="Left" Height="23" Margin="90,185,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="245"/>
-        <TextBox x:Name="tbROM" HorizontalAlignment="Left" Height="23" Margin="90,142,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="245"/>
-        <Button x:Name="btnSearchROM" Content="..." HorizontalAlignment="Left" Margin="340,142,0,0" VerticalAlignment="Top" Width="51" Height="26"/>
-        <Button x:Name="btnSearchPatch" Content="..." HorizontalAlignment="Left" Margin="340,185,0,0" VerticalAlignment="Top" Width="51" Height="26"/>
         <Grid HorizontalAlignment="Left" Height="105" Margin="10,10,0,0" VerticalAlignment="Top" Width="375">
             <Image Margin="0,16.67,0,17.285" Source="/Resources/cometpatch.png" Stretch="Fill"/>
         </Grid>
-        <Label Content="ROM File" HorizontalAlignment="Left" Height="23" Margin="10,142,0,0" VerticalAlignment="Top" Width="60"/>
-        <Label Content="CMTP File " HorizontalAlignment="Left" Height="23" Margin="10,185,0,0" VerticalAlignment="Top" Width="65"/>
+        <TabControl HorizontalAlignment="Left" Height="145" Margin="10,106,0,0" VerticalAlignment="Top" Width="381">
+            <TabItem Header="Patch ROM">
+                <Grid>
+                    <Button x:Name="btnPatch" Content="Patch" HorizontalAlignment="Left" Margin="277,85.09,0,0" VerticalAlignment="Top" Width="91" Height="26"/>
+                    <TextBox x:Name="tbPatch" HorizontalAlignment="Left" Height="23" Margin="90,54.09,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="222"/>
+                    <TextBox x:Name="tbROM" HorizontalAlignment="Left" Height="23" Margin="90,11.09,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="222"/>
+                    <Button x:Name="btnSearchROM" Content="..." HorizontalAlignment="Left" Margin="317,11.09,0,0" VerticalAlignment="Top" Width="51" Height="26"/>
+                    <Button x:Name="btnSearchPatch" Content="..." HorizontalAlignment="Left" Margin="317,54.09,0,0" VerticalAlignment="Top" Width="51" Height="26"/>
+                    <Label Content="ROM File" HorizontalAlignment="Left" Height="23" Margin="10,11.09,0,0" VerticalAlignment="Top" Width="60"/>
+                    <Label Content="CMTP File " HorizontalAlignment="Left" Margin="10,54.09,0,37.95" Width="65"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Create Patch">
+                <Grid>
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="Check Patch Info">
+                <Grid>
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="About CMTP">
+                <Grid>
+
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
