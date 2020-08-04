@@ -1,0 +1,49 @@
+CometCHAR patch file specification
+Only works for binary ROMs.
+Decomp ROMs don't even really need a file format like this.
+
+Ofs(len)    type:     description:
+0x0(4)      String:   "CMTP" in ASCII, magic bytes for identifying the file
+                      CometCHAR's regular patcher will ignore the file if it's not this
+                      
+0x04(2)     byte[2]:  Version number. First byte is major version, second byte is minor version.
+                      0x04  0x05
+                      01    00
+                      Example above: CometCHAR patch v1.0 is 01 00.
+                      
+Below this line, features may be specific to CometCHAR patch versions.
+--------------------------------------------------------------------------------------------------
+0x06(2)     Flags:    Patch features
+                      This is things that the patch has which the patcher can add up in the ROMs
+                      to provide features, like extended eyes or so.
+                      These are added at patch creation time.
+                      It is up to the patcher to honor these features.
+                      (CometCHAR will be the genesis of these so CometCHAR will honor these.)
+                     
+                      CometCHAR v1.0 example:
+                        
+                      0x06      0x07
+                      0000 0000 0000 0011
+                      |               ||| Uses Extended Segment 04
+                      |   Reserved    || Geo Layout is inside Segment 04
+                      |(Future proof) |
+                      
+==================================================================================================
+                                  COMETCHAR PATCH v0.1
+==================================================================================================
+                      
+0x08(4) [m] uint:     Length of compressed (LZMA) Segment 04 data
+
+0x0C(4) [n] uint:     Length of compressed (LZMA) Geo Layout data (0 if Flag 2 is on [Geo Layout inside S04])
+
+0x10(4)     uint:     StartMargin for Geo Layout (Earliest Jump, ROM addr, only if Geo Layout is Outside Bank 04)
+
+0x14(4)     uint:     Length of uncompressed Segment04 data
+                    
+0x18(4)     uint:     Length of uncompressed Geo Layout data
+
+0x1C(4)     SegPtr:   Segmented location at which the GeoLayout starts
+
+0x20(m)     LZMA:     Compressed Segment 04 data
+
+0x20+m(n)   LZMA:     Compressed Geo Layout data

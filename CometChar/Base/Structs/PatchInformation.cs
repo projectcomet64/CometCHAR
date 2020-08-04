@@ -3,6 +3,9 @@
     /// <summary>
     /// Information about the patch.
     /// </summary>
+    //TODO: CMTP v0.2: make SegOffset become StartMarginOffset
+    //Would allow to put the geolayout in absolutely any segment with no problems
+    //as the initial node's offset would be recorded as well
     public struct PatchInformation
     {
         public int versionMajor;
