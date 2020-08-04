@@ -1,0 +1,21 @@
+﻿<Window x:Class="CometCharGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CometCharGUI"
+        mc:Ignorable="d"
+        Title="CometCHAR // CMTP Patcher GUI" Height="312" Width="429" Background="#FF111111">
+    <Grid Margin="10">
+        <Button x:Name="btnPatch" Content="Patch" HorizontalAlignment="Left" Margin="300,220,0,0" VerticalAlignment="Top" Width="91" Height="26"/>
+        <TextBox x:Name="tbPatch" HorizontalAlignment="Left" Height="23" Margin="90,185,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="245"/>
+        <TextBox x:Name="tbROM" HorizontalAlignment="Left" Height="23" Margin="90,142,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="245"/>
+        <Button x:Name="btnSearchROM" Content="..." HorizontalAlignment="Left" Margin="340,142,0,0" VerticalAlignment="Top" Width="51" Height="26"/>
+        <Button x:Name="btnSearchPatch" Content="..." HorizontalAlignment="Left" Margin="340,185,0,0" VerticalAlignment="Top" Width="51" Height="26"/>
+        <Grid HorizontalAlignment="Left" Height="105" Margin="10,10,0,0" VerticalAlignment="Top" Width="375">
+            <Image Margin="0,16.67,0,17.285" Source="/Resources/cometpatch.png" Stretch="Fill"/>
+        </Grid>
+        <Label Content="ROM File" HorizontalAlignment="Left" Height="23" Margin="10,142,0,0" VerticalAlignment="Top" Width="60"/>
+        <Label Content="CMTP File " HorizontalAlignment="Left" Height="23" Margin="10,185,0,0" VerticalAlignment="Top" Width="65"/>
+    </Grid>
+</Window>
