@@ -55,90 +55,91 @@ namespace CometChar
             return pI;
         }
 
-        public static async Task<bool> CheckROMBigEndian(string inROM)
+        public static bool CheckROMBigEndian(string inROM)
         {
             using (FileStream romStream = new FileStream(inROM, FileMode.Open, FileAccess.Read))
             {
                 byte[] headerArr = new byte[] { 0x80, 0x37, 0x12, 0x40 };
                 byte[] readArr = new byte[4];
                 romStream.Seek(0x0, SeekOrigin.Begin);
-                await romStream.ReadAsync(readArr, 0, 4);
-                if (headerArr != readArr)
+                romStream.Read(readArr, 0, 4);
+                if (!Enumerable.SequenceEqual(headerArr, readArr))
                 {
                     return false;
                 }
                 return true;
             }
-            
+
         }
 
-        public static async void PatchROM(string inROM, Stream patchStream, string outROM, IProgress<int> prog)
+        public static void PatchROM(string inROM, Stream patchStream, string outROM, IProgress<float> prog)
         {
             PatchInformation pInfo;
-            pInfo = await Task.Run(() => ReadPatchFile(patchStream));
+            pInfo = ReadPatchFile(patchStream);
 
             MemoryStream uncompS04 = new MemoryStream((int)pInfo.Segment04Length);
             MemoryStream uncompGL = new MemoryStream((int)pInfo.GeoLayoutLength);
 
-            bool validROM = await CheckROMBigEndian(inROM);
+            bool validROM = CheckROMBigEndian(inROM);
             if (!validROM)
             {
                 throw new InvalidROMException("This ROM is not a Big Endian (z64) ROM.");
             }
 
             // Decompressing the compressed data and checking the ROM's byte order
-            using (FileStream romStream = new FileStream(inROM, FileMode.Open, FileAccess.Read))
+            patchStream.Seek(0x20, SeekOrigin.Begin);
+            byte[] s04arr = new byte[pInfo.compSegment04Length];
+            patchStream.Read(s04arr, 0, s04arr.Length);
+            MemoryStream s04comp = new MemoryStream(s04arr);
+            LZMA.Decompress(s04comp, uncompS04);
+            prog?.Report(1);
+            if ((pInfo.Features & 2) == 0)
             {
-                romStream.Seek(0x20, SeekOrigin.Begin);
-                byte[] s04arr = new byte[pInfo.compSegment04Length];
-                await romStream.ReadAsync(s04arr, 0, s04arr.Length);
-                MemoryStream s04comp = new MemoryStream(s04arr);
-                await Task.Run(() => LZMA.Decompress(s04comp, uncompS04));
-                prog?.Report(10);
-                if ((pInfo.Features & 2) == 0)
-                {
-                    // Hierarchy (GL) not in Bank04, decompress at default location
-                    byte[] glarr = new byte[pInfo.compGeoLayoutLength];
-                    await romStream.ReadAsync(glarr, 0, glarr.Length);
-                    MemoryStream glcomp = new MemoryStream(glarr);
-                    await Task.Run(() => LZMA.Decompress(glcomp, uncompGL));
-                    glcomp.Dispose();
-                }
-                s04comp.Dispose();
-                prog?.Report(35);
+                // Hierarchy (GL) not in Bank04, decompress at default location
+                byte[] glarr = new byte[pInfo.compGeoLayoutLength];
+                patchStream.Read(glarr, 0, glarr.Length);
+                MemoryStream glcomp = new MemoryStream(glarr);
+                LZMA.Decompress(glcomp, uncompGL);
+                glcomp.Dispose();
             }
+            s04comp.Dispose();
 
-            await Task.Run(() => File.Copy(inROM, outROM));
-            prog?.Report(45);
+            prog?.Report(1.6f);
+            if (File.Exists(outROM))
+            {
+                File.Delete(outROM);
+            }
+            File.Copy(inROM, outROM);
+            prog?.Report(2f);
 
             //Writing to ROM
             using (FileStream fs = new FileStream(outROM, FileMode.Open, FileAccess.ReadWrite))
             {
                 fs.Seek(0x2ABCE4, SeekOrigin.Begin);
-                await fs.WriteAsync(BitConverter.GetBytes(pInfo.GeoLayoutSegOffset), 0, 4);
-                prog?.Report(55);
+                fs.Write(BitConverter.GetBytes(pInfo.GeoLayoutSegOffset), 0, 4);
+                prog?.Report(3f);
                 // Extend S04
                 if ((pInfo.Features & 1) == 1)
                 {
                     fs.Seek(0x2ABCA4, SeekOrigin.Begin);
-                    await fs.WriteAsync(new byte[] { 0x01, 0x1A, 0x35, 0xB8, 0x01, 0x1F, 0xFF, 0x00 }, 0, 8);
+                    fs.Write(new byte[] { 0x01, 0x1A, 0x35, 0xB8, 0x01, 0x1F, 0xFF, 0x00 }, 0, 8);
                 }
-                prog?.Report(60);
-                fs.Seek(await GetSegmentOffset(fs, 04), SeekOrigin.Begin);
-                await fs.WriteAsync(uncompS04.GetBuffer(), 0, (int)uncompS04.Length);
-                prog?.Report(75);
+                prog?.Report(3.2f);
+                fs.Seek(Task.Run(() => GetSegmentOffset(fs, 04)).Result, SeekOrigin.Begin);
+                fs.Write(uncompS04.GetBuffer(), 0, (int)uncompS04.Length);
+                prog?.Report(3.6f);
                 if ((pInfo.Features & 2) == 0)
                 {
                     // GL not in Bank 04, write uncompressed GL
                     fs.Seek(pInfo.GeoLayoutStartMargin, SeekOrigin.Begin);
-                    await fs.WriteAsync(uncompGL.GetBuffer(), 0, (int)uncompGL.Length);
+                    fs.Write(uncompGL.GetBuffer(), 0, (int)uncompGL.Length);
                 }
-                prog?.Report(80);
+                prog?.Report(3.8f);
 
             }
             uncompGL.Dispose();
             uncompS04.Dispose();
-            prog?.Report(100);
+            prog?.Report(4);
         }
 
         public static void CreatePatchFile(Stream ROMStream, string outFile)
