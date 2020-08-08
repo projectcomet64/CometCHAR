@@ -7,12 +7,12 @@ using System.Windows;
 // La información general de un ensamblado se controla mediante el siguiente 
 // conjunto de atributos. Cambie estos valores de atributo para modificar la información
 // asociada con un ensamblado.
-[assembly: AssemblyTitle("CometChatGUI")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("CometCHAR Patcher GUI")]
+[assembly: AssemblyDescription("Patches and creates CMTP files for use in SM64.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("CometChatGUI")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCompany("Project Comet")]
+[assembly: AssemblyProduct("CometCHAR GUI")]
+[assembly: AssemblyCopyright("Copyright © GlitchyPSI @ Project Comet 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -19,8 +19,11 @@ Below this line, features may be specific to CometCHAR patch versions.
                       These are added at patch creation time.
                       It is up to the patcher to honor these features.
                       (CometCHAR will be the genesis of these so CometCHAR will honor these.)
-                     
-                      CometCHAR v1.0 example:
+                      
+					  CometCHAR v0.1 has a mistake, the byte order for the features is reversed.
+					  This will be addressed and fixed in CometCHAR v0.2.
+
+                      CometCHAR v0.1 example:
                         
                       0x06      0x07
                       0000 0000 0000 0011

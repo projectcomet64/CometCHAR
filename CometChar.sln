@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
+# Blend for Visual Studio 15
 VisualStudioVersion = 15.0.27428.2015
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometChar", "CometChar\CometChar.csproj", "{47C5D970-C3CA-4B1D-8EF3-B0BE8F3CDD4E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometCharGUI", "CometCharGUI\CometCharGUI.csproj", "{524DDA95-3BF8-4B91-999C-B93849F2F813}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometCharCLI", "..\CometCharCLI\CometCharCLI\CometCharCLI.csproj", "{1814BD59-2DF1-41F3-91EA-9A6D3729A134}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +21,6 @@ Global
 		{524DDA95-3BF8-4B91-999C-B93849F2F813}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{524DDA95-3BF8-4B91-999C-B93849F2F813}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{524DDA95-3BF8-4B91-999C-B93849F2F813}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1814BD59-2DF1-41F3-91EA-9A6D3729A134}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1814BD59-2DF1-41F3-91EA-9A6D3729A134}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1814BD59-2DF1-41F3-91EA-9A6D3729A134}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1814BD59-2DF1-41F3-91EA-9A6D3729A134}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

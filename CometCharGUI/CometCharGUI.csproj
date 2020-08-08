@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{524DDA95-3BF8-4B91-999C-B93849F2F813}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>CometChatGUI</RootNamespace>
+    <RootNamespace>CometCharGUI</RootNamespace>
     <AssemblyName>CometCharGUI</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -35,6 +35,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>CometCharGUI.App</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>cmtp_suite.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -106,6 +109,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Resource Include="cmtp_suite.ico" />
     <Content Include="tools\LICENSE">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
