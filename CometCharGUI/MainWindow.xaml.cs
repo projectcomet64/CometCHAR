@@ -1,19 +1,9 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using CometChar;
+using CometChar.Structs;
 using System.IO;
 using System.Diagnostics;
 
@@ -81,33 +71,40 @@ namespace CometCharGUI
             string romPath = tbROM.Text;
             string patchPath = tbPatch.Text;
             string saveRomPath = tbSaveAs.Text;
-            if (File.Exists(romPath) && File.Exists(tbPatch.Text))
+            if (File.Exists(romPath) && File.Exists(patchPath))
             {
                 try
                 {
                     int fileSize;
                     bool usingTemp = false;
-                    using (FileStream fs = new FileStream(tbROM.Text, FileMode.Open))
+                    using (FileStream fs = new FileStream(romPath, FileMode.Open))
                     {
                         fileSize = (int)Math.Truncate((double)(fs.Length / 1000000));
                     }
 
                     bool valid = Patch.CheckROMBigEndian(romPath);
 
+                    using (FileStream cmfs = new FileStream(patchPath, FileMode.Open, FileAccess.Read))
+                    {
+                        PatchInformation _pI = Patch.ReadPatchFile(cmfs);
+                        if (_pI.versionMinor > 1)
+                        {
+                            MessageBox.Show("This CMTP file's version is not supported by this version of the patcher. You may need to update your patcher or contact GlitchyPSI.");
+                            return;
+                        }
+                    }
+                    
                     if (valid)
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            pbProgress.Value = 0;
-                            tbPatch.IsReadOnly = true;
-                            tbROM.IsReadOnly = true;
-                            tbSaveAs.IsReadOnly = true;
-                            btnPatch.IsEnabled = false;
+                            UpdateProgress(0);
+                            tcMain.IsEnabled = false;
                         });
 
                         if (fileSize == 8)
                         {
-                            MessageBoxResult _dresult = MessageBox.Show("This ROM is a 8MB ROM.\nYour ROM will now be expanded to 64MB to proceed with the patching.\nDO NOTE THAT THIS PATCH FORMAT DOES NOT WORK IN ROMS BUILT FROM DECOMP.\nContinue?", "ROM is small!", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                            MessageBoxResult _dresult = MessageBox.Show("This ROM is a 8MB ROM.\nCMTP ROM EXPANSION IS EXPERIMENTAL. THIS ROM WILL *NOT* BE COMPATIBLE WITH ROM MANAGER. YOU ARE STRONGLY ADVISED TO EXPAND YOUR ROM BY OPENING IT IN SM64 ROM MANAGER FIRST.\nAdditionally, this does NOT work with Decomp ROMs!\nAre you sure you wish to continue?", "ROM is small!", MessageBoxButton.YesNo, MessageBoxImage.Question);
                             if (_dresult == MessageBoxResult.Yes)
                             {
                                 Dispatcher.Invoke(() => pbProgress.IsIndeterminate = true);
@@ -118,18 +115,23 @@ namespace CometCharGUI
                                     pbProgress.Dispatcher.Invoke(() => pbProgress.IsIndeterminate = false);
                                     patchFile();
                                 });
-                               
+
+                            }
+                            else
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    tcMain.IsEnabled = true;
+                                });
+                                return;
                             }
                         }
                         if (fileSize > 8 && fileSize < 64)
                         {
-                            MessageBox.Show("The size of this ROM is not 8MB or 64MB. This is not supported so far.", "Invalid ROM size", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show("This ROM may be an older SM64 hack. This is not supported right now.", "Invalid ROM size", MessageBoxButton.OK, MessageBoxImage.Error);
                             Dispatcher.Invoke(() =>
                             {
-                                tbPatch.IsReadOnly = false;
-                                tbROM.IsReadOnly = false;
-                                tbSaveAs.IsReadOnly = false;
-                                btnPatch.IsEnabled = true;
+                                tcMain.IsEnabled = true;
                             });
                             return;
                         }
@@ -150,22 +152,20 @@ namespace CometCharGUI
                         {
                             Task.Run(() =>
                             {
-                            IProgress<float> progress = new Progress<float>((i) => UpdateProgress(i));
-                            using (FileStream cmtp = new FileStream(patchPath, FileMode.Open, FileAccess.Read))
-                            {
-                                Patch.PatchROM(romPath, cmtp, saveRomPath, progress);
-                                if (usingTemp)
+                                IProgress<float> progress = new Progress<float>((i) => UpdateProgress(i));
+                                using (FileStream cmtp = new FileStream(patchPath, FileMode.Open, FileAccess.Read))
                                 {
-                                    File.Delete(romPath);
-                                    Directory.Delete($"{AppDomain.CurrentDomain.BaseDirectory}\\temp", true);
+                                    Patch.PatchROM(romPath, cmtp, saveRomPath, progress);
+                                    if (usingTemp)
+                                    {
+                                        File.Delete(romPath);
+                                        Directory.Delete($"{AppDomain.CurrentDomain.BaseDirectory}\\temp", true);
+                                    }
                                 }
-                            }
-                            MessageBox.Show("Success", "Patching complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                                MessageBox.Show("Success", "Patching complete", MessageBoxButton.OK, MessageBoxImage.Information);
                             });
-                            tbPatch.IsReadOnly = false;
-                            tbROM.IsReadOnly = false;
-                            tbSaveAs.IsReadOnly = false;
-                            btnPatch.IsEnabled = true;
+                            tcMain.IsEnabled = true;
+                            UpdateProgress(4);
                         });
                     }
                 }
@@ -196,18 +196,6 @@ namespace CometCharGUI
             romPath = $"{AppDomain.CurrentDomain.BaseDirectory}/temp/rom.ext.z64";
             _extendProc.WaitForExit();
 
-            // Apply PPF
-            ProcessStartInfo _ppfPatcherInfo = new ProcessStartInfo
-            {
-                FileName = $"{AppDomain.CurrentDomain.BaseDirectory}\\tools\\ApplyPPF3.exe",
-                Arguments = $"a {AppDomain.CurrentDomain.BaseDirectory}/temp/rom.ext.z64 {AppDomain.CurrentDomain.BaseDirectory}\\tools\\obj_import195S.ppf",
-                CreateNoWindow = true,
-                UseShellExecute = false
-            };
-            Process _ppfPatcherProc = Process.Start(_ppfPatcherInfo);
-            _ppfPatcherProc.Start();
-            _ppfPatcherProc.WaitForExit();
-
             // More miscellaneous bits
             using (FileStream fs = new FileStream(romPath, FileMode.Open, FileAccess.Write))
             {
@@ -230,21 +218,129 @@ namespace CometCharGUI
             pbProgress.Dispatcher.Invoke(() => pbProgress.Value = prog);
         }
 
-        protected virtual bool IsFileLocked(FileInfo file)
+        private void btnSearchROM_c_Click(object sender, RoutedEventArgs e)
         {
-            try
+            OpenFileDialog odg = new OpenFileDialog();
+            odg.Title = "Search ROM to make a patch from";
+            odg.AddExtension = true;
+            odg.CheckFileExists = true;
+            odg.DefaultExt = "*.z64";
+            odg.Filter = "Modded Super Mario 64 ROM | *.z64";
+            bool? _dres = odg.ShowDialog();
+
+            if (_dres != null && (bool)_dres)
             {
-                using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
-                {
-                    stream.Close();
-                }
+                tbROM_c.Text = odg.FileName;
             }
-            catch (IOException)
-            {
-                return true;
-            }
-            return false;
         }
 
+        private void btnSearchPatch_c_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog sdg = new SaveFileDialog();
+            sdg.Title = "Save CMTP Patch as...";
+            sdg.AddExtension = true;
+            sdg.DefaultExt = "*.cmtp";
+            sdg.Filter = "v0.1 CometCHAR Patch | *.cmtp";
+            bool? _dres = sdg.ShowDialog();
+
+            if (_dres != null && (bool)_dres)
+            {
+                tbPatch_c.Text = sdg.FileName;
+            }
+        }
+
+        private void btnCreatePatch_Click(object sender, RoutedEventArgs e)
+        {
+            string romPath = tbROM_c.Text;
+            string patchPath = tbPatch_c.Text;
+            if (File.Exists(romPath))
+            {
+                try
+                {
+                    int fileSize;
+                    using (FileStream fs = new FileStream(romPath, FileMode.Open))
+                    {
+                        fileSize = (int)Math.Truncate((double)(fs.Length / 1000000));
+                    }
+
+                    bool valid = Patch.CheckROMBigEndian(romPath);
+
+                    if (valid)
+                    {
+                        if (fileSize < 65)
+                        {
+                            MessageBox.Show("Are you sure this is a valid character mod?\nKeep in mind 8MB (Vanilla/Decomp), 24MB and 48MB mods are not supported yet.");
+                        }
+                        else if (fileSize > 65)
+                        {
+                            using (FileStream fs = new FileStream(romPath, FileMode.Open, FileAccess.Read))
+                            {
+                                Patch.CreatePatchFile(fs, patchPath);
+                                MessageBox.Show("Success", "Patch creation complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("The ROM doesn't appear to be a valid ROM. Please make sure to use a valid SM64 ROM (Big-Endian).", "Invalid file", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error while writing to the files.\n" + ex.Message);
+                }
+            }
+            else
+            {
+                MessageBox.Show("We cannot access the ROM. Please make sure it is still at its original location and try again.", "Files missing", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+        }
+
+        private void btnSearchPatch_i_Click(object sender, RoutedEventArgs e)
+        {
+            PatchInformation _pI;
+            OpenFileDialog odg = new OpenFileDialog();
+            odg.Title = "Search CMTP Patch";
+            odg.AddExtension = true;
+            odg.CheckFileExists = true;
+            odg.DefaultExt = "*.cmtp";
+            odg.Filter = "CometCHAR Patch | *.cmtp";
+            bool? _dres = odg.ShowDialog();
+
+
+            if (_dres != null && (bool)_dres)
+            {
+                if (File.Exists(odg.FileName))
+                {
+                    tbPatch_i.Text = odg.FileName;
+                    using (FileStream cmfs = new FileStream(odg.FileName, FileMode.Open, FileAccess.Read))
+                    {
+                        _pI = Patch.ReadPatchFile(cmfs);
+                    }
+                    Dispatcher.Invoke(() =>
+                    {
+                        txbCmtpInfoArea.Text = $"CMTP file version: v{_pI.versionMajor}.{_pI.versionMinor}.\n{((_pI.Features & 1) == 1 ? "This patch appears to be from a Blender / Fast64 / Extended Classic mod." : "This patch appears to be from a Classic mod.")}";
+                    });
+                }
+                else
+                {
+                    MessageBox.Show("We cannot access the patch file. Please make sure it is still at its original location and try again.", "Files missing", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void btnDiscord_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start("https://comet.glitchypsi.xyz");
+        }
+
+        private void btnGithub_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start("https://github.com/projectcomet64");
+        }
     }
 }

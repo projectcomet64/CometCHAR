@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CometCharGUI"
         mc:Ignorable="d"
-        Title="CometCHAR // CMTP Patcher GUI" Height="382" Width="429" Background="#FF111111">
+        Title="CometCHAR // CMTP Patcher GUI" Height="382" Width="429" Background="#FF111111" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Icon="Resources/cmt_lookup.png">
     <Grid Margin="10">
         <Grid HorizontalAlignment="Left" Height="105" Margin="10,10,0,0" VerticalAlignment="Top" Width="375">
             <Image Margin="0,16.67,0,17.285" Source="/Resources/cometpatch.png" Stretch="Fill"/>
         </Grid>
-        <TabControl HorizontalAlignment="Left" Margin="10,106,0,10" Width="381">
+        <TabControl x:Name="tcMain" HorizontalAlignment="Left" Margin="10,106,0,10" Width="381">
             <TabItem Header="Patch ROM">
                 <Grid>
                     <Button x:Name="btnPatch" Content="Patch" HorizontalAlignment="Left" Margin="276,124.04,0,0" VerticalAlignment="Top" Width="91" Height="26" Click="btnPatch_Click"/>
@@ -28,20 +28,20 @@
             </TabItem>
             <TabItem Header="Create Patch">
                 <Grid>
-                    <Button x:Name="btnCreatePatch" Content="Create Patch" HorizontalAlignment="Left" Margin="276,124.04,0,0" VerticalAlignment="Top" Width="91" Height="26"/>
+                    <Button x:Name="btnCreatePatch" Content="Create Patch" HorizontalAlignment="Left" Margin="276,124.04,0,0" VerticalAlignment="Top" Width="91" Height="26" Click="btnCreatePatch_Click"/>
                     <TextBox x:Name="tbPatch_c" HorizontalAlignment="Left" Height="26" Margin="102,54.09,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="209" VerticalContentAlignment="Center" VerticalScrollBarVisibility="Disabled"/>
                     <TextBox x:Name="tbROM_c" HorizontalAlignment="Left" Height="26" Margin="102,11.09,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="209" VerticalContentAlignment="Center" VerticalScrollBarVisibility="Disabled"/>
-                    <Button x:Name="btnSearchROM_c" Content="..." HorizontalAlignment="Left" Margin="316,11.09,0,0" VerticalAlignment="Top" Width="51" Height="26"/>
-                    <Button x:Name="btnSearchPatch_c" Content="..." HorizontalAlignment="Left" Margin="316,54.09,0,0" VerticalAlignment="Top" Width="51" Height="26"/>
+                    <Button x:Name="btnSearchROM_c" Content="..." HorizontalAlignment="Left" Margin="316,11.09,0,0" VerticalAlignment="Top" Width="51" Height="26" Click="btnSearchROM_c_Click"/>
+                    <Button x:Name="btnSearchPatch_c" Content="..." HorizontalAlignment="Left" Margin="316,54.09,0,0" VerticalAlignment="Top" Width="51" Height="26" Click="btnSearchPatch_c_Click"/>
                     <Label Content="ROM File" HorizontalAlignment="Left" Height="23" Margin="10,14.09,0,0" VerticalAlignment="Top" Width="60"/>
                     <Label Content="Save patch as..." HorizontalAlignment="Left" Margin="8,57.09,0,29" Width="90"/>
-                    <TextBlock TextWrapping="NoWrap" Text="Creates a: v0.1 CMTP file." Margin="10,123.07,106,10.97"/>
+                    <TextBlock TextWrapping="NoWrap" Margin="10,123.07,106,10.97"><Run Text="Creates a: v0.1 CMTP file."/><LineBreak/><Run Text="CMTP v0.1 has no toggleable features."/></TextBlock>
                 </Grid>
             </TabItem>
             <TabItem Header="Check Patch Info">
                 <Grid>
-                    <TextBox x:Name="tbPatch_i" HorizontalAlignment="Left" Height="23" Margin="83,13,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="228" VerticalContentAlignment="Center" VerticalScrollBarVisibility="Disabled"/>
-                    <Button x:Name="btnSearchPatch_i" Content="..." HorizontalAlignment="Left" Margin="316,10,0,0" VerticalAlignment="Top" Width="51" Height="26"/>
+                    <TextBox x:Name="tbPatch_i" HorizontalAlignment="Left" Height="26" Margin="83,10,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="228" VerticalContentAlignment="Center" VerticalScrollBarVisibility="Disabled"/>
+                    <Button x:Name="btnSearchPatch_i" Content="..." HorizontalAlignment="Left" Margin="316,10,0,0" VerticalAlignment="Top" Width="51" Height="26" Click="btnSearchPatch_i_Click"/>
                     <Label Content="CMTP File" HorizontalAlignment="Left" Height="23" Margin="10,14.09,0,0" VerticalAlignment="Top" Width="68"/>
                     <TextBlock x:Name="txbCmtpInfoArea" TextWrapping="Wrap" Text="Open a CMTP file to display its information." Margin="10,0,10,10" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="357" Height="85.45" TextAlignment="Center"/>
                 </Grid>
@@ -49,8 +49,8 @@
             <TabItem Header="About CMTP">
                 <Grid>
                     <TextBlock TextWrapping="Wrap" Margin="10,10,104,10" TextAlignment="Center"><Run FontSize="16" Text="CMTP: "/><Run FontWeight="Bold" FontSize="16" Text="C"/><Run FontSize="16" Text="o"/><Run FontWeight="Bold" FontSize="16" Text="m"/><Run FontSize="16" Text="e"/><Run FontWeight="Bold" FontSize="16" Text="t"/><Run FontSize="16" Text="CHAR Mod "/><Run FontWeight="Bold" FontSize="16" Text="P"/><Run FontSize="16" Text="atch"/><Run FontSize="16" Text=" suite"/><LineBreak/><Run Text="GUI version: 1.0"/><LineBreak/><Run Text="Reads CMTP patches up to: CMTP v0.1 // CCTP v0.1"/><LineBreak/><Run Text="Licensed under GPLv3"/><LineBreak/><Run Text="CMTP file specification by GlitchyPSI @ Project Comet"/><LineBreak/><Run Text="sm64extend by queueRAM (Licensed under MIT)"/></TextBlock>
-                    <Button x:Name="btnDiscord" Content="Discord Server" HorizontalAlignment="Center" Margin="278,93.04,10,0" VerticalAlignment="Top" Width="89" Height="26"/>
-                    <Button x:Name="btnGithub" Content="GitHub" HorizontalAlignment="Center" Margin="278,124.04,10,0" VerticalAlignment="Top" Width="89" Height="26"/>
+                    <Button x:Name="btnDiscord" Content="Discord Server" HorizontalAlignment="Center" Margin="278,93.04,10,0" VerticalAlignment="Top" Width="89" Height="26" Click="btnDiscord_Click"/>
+                    <Button x:Name="btnGithub" Content="GitHub" HorizontalAlignment="Center" Margin="278,124.04,10,0" VerticalAlignment="Top" Width="89" Height="26" Click="btnGithub_Click"/>
                 </Grid>
             </TabItem>
         </TabControl>

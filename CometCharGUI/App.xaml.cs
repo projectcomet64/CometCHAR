@@ -13,12 +13,5 @@ namespace CometCharGUI
     /// </summary>
     public partial class App : Application
     {
-        [STAThread]
-        public static void Main()
-        {
-            App application = new App();
-            application.InitializeComponent();
-            application.Run();
-        }
     }
 }
