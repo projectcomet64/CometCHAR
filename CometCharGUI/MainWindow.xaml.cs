@@ -192,9 +192,18 @@ namespace CometCharGUI
                 CreateNoWindow = true,
                 UseShellExecute = false
             };
+            ProcessStartInfo _xdeltaProcInfo = new ProcessStartInfo
+            {
+                FileName = $"{AppDomain.CurrentDomain.BaseDirectory}\\tools\\xdelta.exe",
+                Arguments = $"-d -f -s \"{AppDomain.CurrentDomain.BaseDirectory}\\temp\\rom.ext.z64\" \"{AppDomain.CurrentDomain.BaseDirectory}\\binhacks\\pilz_comp.xdelta\" \"{AppDomain.CurrentDomain.BaseDirectory}\\temp\\rom.xdt.z64\" ",
+                CreateNoWindow = true,
+                UseShellExecute = false
+            };
             Process _extendProc = Process.Start(_extendProcInfo);
-            romPath = $"{AppDomain.CurrentDomain.BaseDirectory}/temp/rom.ext.z64";
             _extendProc.WaitForExit();
+            Process _xdeltaProc = Process.Start(_xdeltaProcInfo);
+            _xdeltaProc.WaitForExit();
+            romPath = $"{AppDomain.CurrentDomain.BaseDirectory}/temp/rom.xdt.z64";
 
             // More miscellaneous bits
             using (FileStream fs = new FileStream(romPath, FileMode.Open, FileAccess.Write))
