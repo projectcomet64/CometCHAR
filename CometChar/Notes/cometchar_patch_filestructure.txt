@@ -1,10 +1,14 @@
 CometCHAR patch file specification
 Only works for binary ROMs.
-Decomp ROMs don't even really need a file format like this.
+Decomp ROMs don't even really need a file format like this. 
 
 Ofs(len)    type:     description:
 0x0(4)      String:   "CMTP" in ASCII, magic bytes for identifying the file
                       CometCHAR's regular patcher will ignore the file if it's not this
+
+                      There is a special string in ASCII which is "CTCP".
+                      Written here but its use is reserved and undocumented until the parser
+                      is done.
                       
 0x04(2)     byte[2]:  Version number. First byte is major version, second byte is minor version.
                       0x04  0x05
@@ -14,18 +18,15 @@ Ofs(len)    type:     description:
 Below this line, features may be specific to CometCHAR patch versions.
 --------------------------------------------------------------------------------------------------
 0x06(2)     Flags:    Patch features
-                      This is things that the patch has which the patcher can add up in the ROMs
-                      to provide features, like extended eyes or so.
-                      These are added at patch creation time.
-                      It is up to the patcher to honor these features.
+        (as short,    This is things that the patch has which the patcher can add up in the ROMs
+usually written to    to provide features, like extended eyes or so.
+file as little-       These are added at patch creation time.
+endian)               It is up to the patcher to honor these features.
                       (CometCHAR will be the genesis of these so CometCHAR will honor these.)
-                      
-					  CometCHAR v0.1 has a mistake, the byte order for the features is reversed.
-					  This will be addressed and fixed in CometCHAR v0.2.
-
+         
                       CometCHAR v0.1 example:
-                        
-                      0x06      0x07
+                      
+                      0x06
                       0000 0000 0000 0011
                       |               ||| Uses Extended Segment 04
                       |   Reserved    || Geo Layout is inside Segment 04
