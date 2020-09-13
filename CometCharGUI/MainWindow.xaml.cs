@@ -110,16 +110,23 @@ namespace CometCharGUI
 
                         if (fileSize == 8)
                         {
-                            MessageBoxResult _dresult = MessageBox.Show("This ROM is a 8MB ROM.\nCMTP ROM EXPANSION IS EXPERIMENTAL. THIS ROM WILL *NOT* BE COMPATIBLE WITH ROM MANAGER. YOU ARE STRONGLY ADVISED TO EXPAND YOUR ROM BY OPENING IT IN SM64 ROM MANAGER FIRST.\nAdditionally, this does NOT work with Decomp ROMs!\nAre you sure you wish to continue?", "ROM is small!", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                            MessageBoxResult _dresult = MessageBox.Show("This ROM is a 8MB ROM.\nThis patching process does NOT work with Decomp ROMs!\nAre you sure you wish to continue?", "ROM is small!", MessageBoxButton.YesNo, MessageBoxImage.Question);
                             if (_dresult == MessageBoxResult.Yes)
                             {
                                 Dispatcher.Invoke(() => pbProgress.IsIndeterminate = true);
                                 usingTemp = true;
                                 Task prepareROM = Task.Run(async () =>
                                 {
+                                    try
+                                    { 
                                     romPath = await Task.Run(() => PrepareVanillaROM(romPath));
                                     pbProgress.Dispatcher.Invoke(() => pbProgress.IsIndeterminate = false);
                                     patchFile();
+                                    }
+                                    catch
+                                    {
+                                        MessageBox.Show("Failed to patch the ROM. You're sure this is a good ROM?", "Oh no", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }
                                 });
 
                             }
@@ -134,7 +141,7 @@ namespace CometCharGUI
                         }
                         if (fileSize > 8 && fileSize < 64)
                         {
-                            MessageBox.Show("This ROM may be an older SM64 hack. This is not supported right now.", "Invalid ROM size", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show("This ROM appears to be an older SM64 hack. This is not supported right now.", "Invalid ROM size", MessageBoxButton.OK, MessageBoxImage.Error);
                             Dispatcher.Invoke(() =>
                             {
                                 tcMain.IsEnabled = true;
@@ -282,11 +289,11 @@ namespace CometCharGUI
 
                     if (valid)
                     {
-                        if (fileSize < 65)
+                        if (fileSize < 16)
                         {
-                            MessageBox.Show("Are you sure this is a valid character mod?\nKeep in mind 8MB (Vanilla/Decomp), 24MB and 48MB mods are not supported yet.");
+                            MessageBox.Show("Are you sure this is a valid character mod?\nKeep in mind 8MB (Vanilla/Decomp) ROMs are not supported.");
                         }
-                        else if (fileSize > 65)
+                        else
                         {
                             using (FileStream fs = new FileStream(romPath, FileMode.Open, FileAccess.Read))
                             {
