@@ -21,12 +21,14 @@ namespace CometCharGUI
 
         private void btnSearchROM_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog odg = new OpenFileDialog();
-            odg.Title = "Search ROM to patch";
-            odg.AddExtension = true;
-            odg.CheckFileExists = true;
-            odg.DefaultExt = "*.z64";
-            odg.Filter = "Super Mario 64 ROM | *.z64";
+            OpenFileDialog odg = new OpenFileDialog
+            {
+                Title = "Search ROM to patch",
+                AddExtension = true,
+                CheckFileExists = true,
+                DefaultExt = "*.z64",
+                Filter = "Super Mario 64 ROM | *.z64"
+            };
             bool? _dres = odg.ShowDialog();
 
             if (_dres != null && (bool)_dres)
@@ -37,12 +39,14 @@ namespace CometCharGUI
 
         private void btnSearchPatch_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog odg = new OpenFileDialog();
-            odg.Title = "Search CMTP file to patch from";
-            odg.AddExtension = true;
-            odg.CheckFileExists = true;
-            odg.DefaultExt = "*.cmtp";
-            odg.Filter = "ComatCHAR Patch | *.cmtp";
+            OpenFileDialog odg = new OpenFileDialog
+            {
+                Title = "Search CMTP file to patch from",
+                AddExtension = true,
+                CheckFileExists = true,
+                DefaultExt = "*.cmtp",
+                Filter = "ComatCHAR Patch | *.cmtp"
+            };
             bool? _dres = odg.ShowDialog();
 
             if (_dres != null && (bool)_dres)
@@ -53,11 +57,13 @@ namespace CometCharGUI
 
         private void btnSaveAs_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog sdg = new SaveFileDialog();
-            sdg.Title = "Save patched ROM as...";
-            sdg.AddExtension = true;
-            sdg.DefaultExt = "*.z64";
-            sdg.Filter = "Big-Endian N64 ROM| *.z64";
+            SaveFileDialog sdg = new SaveFileDialog
+            {
+                Title = "Save patched ROM as...",
+                AddExtension = true,
+                DefaultExt = "*.z64",
+                Filter = "Big-Endian N64 ROM| *.z64"
+            };
             bool? _dres = sdg.ShowDialog();
 
             if (_dres != null && (bool)_dres)

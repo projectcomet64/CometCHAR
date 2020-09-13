@@ -12,11 +12,9 @@ namespace CometChar
 {
     public static class Patch
     {
-        // TODO: Make ReadPatchFile and etc asynchronous
         public static PatchInformation ReadPatchFile(Stream PatchStream)
         {
             PatchInformation pI = new PatchInformation();
-            byte[] cmtHeader = new byte[8];
             byte[] magicNumber = new byte[4];
             byte[] versionMajor = new byte[1];
             byte[] versionMinor = new byte[1];
@@ -146,6 +144,10 @@ namespace CometChar
         {
             bool GeoLayoutInSeg04 = false;
             uint features = 0;
+            if (File.Exists(outFile))
+            {
+                File.Delete(outFile);
+            }
             using (FileStream fs = new FileStream(outFile, FileMode.Create, FileAccess.ReadWrite))
             {
                 long Seg04Offset = Task.Run(() => GetSegmentOffset(ROMStream)).Result;
@@ -175,6 +177,8 @@ namespace CometChar
 
                 MemoryStream compressedS04 = new MemoryStream();
                 MemoryStream compressedGL = new MemoryStream();
+                // TODO: Implement Checksum
+                // It'll be hard, can't rely on 7z's since it takes too much mem
                 uint CRCChecksum;
                 byte[] GeoLayoutSegAddr = new byte[8];
                 using (MemoryStream ms = new MemoryStream(Seg04Data))

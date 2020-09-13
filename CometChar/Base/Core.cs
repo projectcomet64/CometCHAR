@@ -111,7 +111,7 @@ namespace CometChar
         public static async Task<long> GetSegmentLength(Stream rom, int segment = 4)
         {
             uint start, end = 0;
-            byte[] segload = await GetSegmentBytes(rom);
+            byte[] segload = await GetSegmentBytes(rom, segment);
             byte[] segoffset = segload.Take(4).ToArray();
             byte[] segend = segload.Skip(4).ToArray();
             Array.Reverse(segoffset);
