@@ -145,7 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CometChar\CometChar.csproj">
-      <Project>{47c5d970-c3ca-4b1d-8ef3-b0be8f3cdd4e}</Project>
+      <Project>{bc4a44a9-8732-4ac3-8e4d-46ecf87fe01d}</Project>
       <Name>CometChar</Name>
     </ProjectReference>
   </ItemGroup>

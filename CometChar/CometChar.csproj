@@ -1,71 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{47C5D970-C3CA-4B1D-8EF3-B0BE8F3CDD4E}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>CometChar</RootNamespace>
-    <AssemblyName>CometChar</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <Version>1.1.0</Version>
+    <Authors>GlitchyPSI</Authors>
+    <Company>Project Comet</Company>
+    <Description>Base library for CometCHAR.</Description>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <None Remove="Notes\cometchar_patch_filestructure.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Base\InvalidROMException.cs" />
-    <Compile Include="Base\PatchFile.cs" />
-    <Compile Include="Base\Core.cs" />
-    <Compile Include="Base\Geolayout.cs" />
-    <Compile Include="Base\Structs\GeoLayoutInformation.cs" />
-    <Compile Include="Base\Structs\PatchInformation.cs" />
-    <Compile Include="LZMA\Common\CRC.cs" />
-    <Compile Include="LZMA\Common\InBuffer.cs" />
-    <Compile Include="LZMA\Common\OutBuffer.cs" />
-    <Compile Include="LZMA\Compress\LZMA\LzmaBase.cs" />
-    <Compile Include="LZMA\Compress\LZMA\LzmaDecoder.cs" />
-    <Compile Include="LZMA\Compress\LZMA\LzmaEncoder.cs" />
-    <Compile Include="LZMA\Compress\LZ\IMatchFinder.cs" />
-    <Compile Include="LZMA\Compress\LZ\LzBinTree.cs" />
-    <Compile Include="LZMA\Compress\LZ\LzInWindow.cs" />
-    <Compile Include="LZMA\Compress\LZ\LzOutWindow.cs" />
-    <Compile Include="LZMA\Compress\RangeCoder\RangeCoder.cs" />
-    <Compile Include="LZMA\Compress\RangeCoder\RangeCoderBit.cs" />
-    <Compile Include="LZMA\Compress\RangeCoder\RangeCoderBitTree.cs" />
-    <Compile Include="LZMA\ICoder.cs" />
-    <Compile Include="LZMA\LZMAHelper.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
+
   <ItemGroup>
     <Content Include="Notes\cometchar_patch_filestructure.txt" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>
