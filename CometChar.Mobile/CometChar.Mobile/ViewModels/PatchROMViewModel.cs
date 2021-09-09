@@ -13,6 +13,28 @@ namespace CometChar.Mobile.ViewModels
     public class PatchROMViewModel : BaseViewModel
     {
 
+        string _statusText = "Ready";
+        public string StatusText
+        {
+            get => _statusText;
+            set
+            {
+                _statusText = value;
+                OnPropertyChanged("StatusText");
+            }
+        }
+
+        bool _isPatching = false;
+        public bool IsPatching
+        {
+            get => _isPatching;
+            set
+            {
+                _isPatching = value;
+                OnPropertyChanged("IsPatching");
+            }
+        }
+
         string _romFilepath;
 
         string _cmtpFilepath;
@@ -76,7 +98,24 @@ namespace CometChar.Mobile.ViewModels
 
         public async Task StartPatch()
         {
-            await Application.Current.MainPage.DisplayAlert("Performing action", $"ROM file: {_romFilepath}\nCMTP file: {_cmtpFilepath}\nSave to: {_savedRomFilepath}\n\nSupposing they exist, patch Now", "OK");
+            if (string.IsNullOrEmpty(_romFilepath))
+            {
+                await Application.Current.MainPage.DisplayAlert("", $"ROM path cannot be empty", "OK");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_cmtpFilepath))
+            {
+                await Application.Current.MainPage.DisplayAlert("", $"CMTP Patch path cannot be empty", "OK");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_savedRomFilepath))
+            {
+                await Application.Current.MainPage.DisplayAlert("", $"You have to save the new ROM somewhere!\n\nSelect the ROM save location.", "OK");
+                return;
+            }
+
             FileInfo _fiROM = new FileInfo(_romFilepath);
 
             if (!File.Exists(_romFilepath))
@@ -109,11 +148,15 @@ namespace CometChar.Mobile.ViewModels
                 return;
             }
 
+            IsPatching = true;
+            StatusText = "Checking ROM size";
+
             if ((_fiROM.Length / 1000000) <= 8)
             {
                 await Application.Current.MainPage.DisplayAlert("Small ROM detected!", $"An 8MB ROM! We will now patch this ROM and make it 64MB. We will put it in the same location as this one.\n\nThis may take a while. Also, keep it. You will want to use it for future patching.", "OK");
                 try
                 {
+                    StatusText = "Patching 8MB ROM\nMay freeze!";
                     // the XDelta patch
                     MemoryStream _deltaLoad = new MemoryStream(Properties.Resources.compatible);
                     MemoryStream _romLoad = new MemoryStream(await File.ReadAllBytesAsync(_romFilepath));
@@ -123,7 +166,7 @@ namespace CometChar.Mobile.ViewModels
 
                     // TODO: Move XDelta decoding to base library and include the Experimental Expansion option in there too
                     // so Windows GUI can use it
-
+                    StatusText = "Expanding to 64MB";
                     if ((_outLoad.Length / 1000000) < 64)
                     {
                         _outLoad.SetLength(0x3FFFFFF);
@@ -134,6 +177,7 @@ namespace CometChar.Mobile.ViewModels
                     if (!File.Exists(_romFilepath))
                     {
                         await Application.Current.MainPage.DisplayAlert("Unknown error!", $"Patch failed. New file doesn't exist! This must be a bug. Please report it!", "OK");
+                        StatusText = "Ready, but had a patch error.";
                         return;
                     }
                     _fiROM = new FileInfo(_romFilepath);
@@ -142,10 +186,11 @@ namespace CometChar.Mobile.ViewModels
                     _romLoad.Dispose();
                     _outLoad.Dispose();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Debug.WriteLine(ex);
                     await Application.Current.MainPage.DisplayAlert("Patching failed", $"Oops! It seems as if patching failed.\n\nKeep in mind this patching will not work with Decomp ROMs. If you believe this is an error, please report this bug.", "OK");
+                    StatusText = "Ready, but patching failed.";
+                    return;
                 }
             }
 
@@ -155,10 +200,13 @@ namespace CometChar.Mobile.ViewModels
                 return;
             }
 
+            StatusText = "Applying CMTP patch";
 
             MemoryStream _cmtpMem = new MemoryStream(await File.ReadAllBytesAsync(_cmtpFilepath));
-            Patch.PatchROM(_romFilepath, _cmtpMem, _savedRomFilepath, null);
+            await Task.Run(() => Patch.PatchROM(_romFilepath, _cmtpMem, _savedRomFilepath, null));
 
+            StatusText = "Ready, just finished patching";
+            IsPatching = false;
             await Application.Current.MainPage.DisplayAlert("", $"Done!", "OK");
         }
 

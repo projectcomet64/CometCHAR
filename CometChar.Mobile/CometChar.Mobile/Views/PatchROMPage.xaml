@@ -2,7 +2,9 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="CometChar.Mobile.Views.PatchROMPage"
-             xmlns:vm="clr-namespace:CometChar.Mobile.ViewModels">
+             xmlns:vm="clr-namespace:CometChar.Mobile.ViewModels"
+             xmlns:converters="clr-namespace:CometChar.Mobile.Converters"
+             Title="Patch ROM">
 
     <ContentPage.BindingContext>
         <vm:PatchROMViewModel />
@@ -10,38 +12,58 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
+            <converters:InverseBoolConverter x:Key="revBool" />
             <Style x:Key="FieldHeader" TargetType="Label">
                 <Setter Property="FontSize" Value="13"/>
             </Style>
             <Style x:Key="Filename" TargetType="Label">
-                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="FontSize" Value="15"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
 
     <ContentPage.Content>
+        <ScrollView>
         <StackLayout>
-            <StackLayout>
-                <FlexLayout>
-                    <Label Text="ROM File:" Style="{DynamicResource FieldHeader}"/>
-                    <Label Text="{Binding RomFilepath}" Style="{DynamicResource Filename}"/>
-                    <Button Text="Choose ROM" Command="{Binding ChooseROMCommand}"></Button>
-                </FlexLayout>
-                <FlexLayout>
-                    <Label Text="CMTP Patch File:" Style="{DynamicResource FieldHeader}"/>
-                    <Label Text="{Binding CmtpFilepath}" Style="{DynamicResource Filename}"/>
-                    <Button Text="Choose CMTP file" Command="{Binding ChooseCMTPCommand}"></Button>
-                </FlexLayout>
-                <FlexLayout>
-                    <Label Text="Save to:" Style="{DynamicResource FieldHeader}"/>
-                    <Entry x:Name="tbRomSavePath" IsReadOnly="True" Text="{Binding SavedRomFilepath, Mode=TwoWay}"/>
-                    <Button x:Name="btnChooseOutput" Clicked="btnChooseOutput_Clicked" Text="Choose Output File"></Button>
-                </FlexLayout>
-                <FlexLayout AlignContent="Center">
-                    <Button Text="Patch ROM" Command="{Binding StartPatchCommand}"></Button>
+            <StackLayout Padding="30, 24" Spacing="10" HorizontalOptions="CenterAndExpand">
+                <Frame HasShadow="True" BackgroundColor="{StaticResource DarkBG}">
+                    <StackLayout>
+                        <StackLayout>
+                            <Label Text="ROM File:" Style="{DynamicResource FieldHeader}"/>
+                            <Label Text="{Binding RomFilepath, Mode=TwoWay, FallbackValue='- No file selected -'}" Style="{DynamicResource Filename}"/>
+                        </StackLayout>
+                        <Button Grid.Column="1" Text="Choose ROM" Command="{Binding ChooseROMCommand}" IsEnabled="{Binding IsPatching, Converter={StaticResource revBool}}"></Button>
+                    </StackLayout>
+                </Frame>
+                <Frame HasShadow="True" BackgroundColor="{StaticResource DarkBG}">
+                    <StackLayout>
+                        <StackLayout>
+                            <Label Text="CMTP Patch File:" Style="{DynamicResource FieldHeader}"/>
+                            <Label Text="{Binding CmtpFilepath, Mode=TwoWay, FallbackValue='- No file selected -'}" Style="{DynamicResource Filename}"/>
+                        </StackLayout>
+                        <Button Text="Choose CMTP file" Command="{Binding ChooseCMTPCommand}" IsEnabled="{Binding IsPatching, Converter={StaticResource revBool}}"></Button>
+                    </StackLayout>
+                </Frame>
+                <Frame HasShadow="True" BackgroundColor="{StaticResource DarkBG}">
+                    <StackLayout>
+                        <StackLayout>
+                            <Label Text="Save to:" Style="{DynamicResource FieldHeader}"/>
+                            <Entry x:Name="tbRomSavePath" IsReadOnly="True" Text="{Binding SavedRomFilepath, Mode=TwoWay, FallbackValue='- No file selected -'}"/>
+                        </StackLayout>
+                        <Button x:Name="btnChooseOutput" Clicked="btnChooseOutput_Clicked" Text="Choose Output File" IsEnabled="{Binding IsPatching, Converter={StaticResource revBool}}"></Button>
+                    </StackLayout>
+                </Frame>
+                <FlexLayout JustifyContent="End" AlignContent="Start" HorizontalOptions="EndAndExpand">
+                    <StackLayout Orientation="Horizontal" VerticalOptions="Center" Padding="10, 0">
+                        <Label Text="{Binding StatusText}" HorizontalTextAlignment="End" VerticalOptions="Center"></Label>
+                        <ActivityIndicator Color="{StaticResource Primary}" IsRunning="{Binding IsPatching}"></ActivityIndicator>
+                    </StackLayout>
+
+                    <Button HorizontalOptions="End" Text="Patch ROM" Command="{Binding StartPatchCommand}" IsEnabled="{Binding IsPatching, Converter={StaticResource revBool}}"></Button>
                 </FlexLayout>
             </StackLayout>
         </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

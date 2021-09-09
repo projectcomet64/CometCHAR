@@ -9,13 +9,6 @@ namespace CometChar.Mobile.ViewModels
     public class BaseViewModel : INotifyPropertyChanged
     {
 
-        bool isBusy = false;
-        public bool IsBusy
-        {
-            get { return isBusy; }
-            set { SetProperty(ref isBusy, value); }
-        }
-
         string title = string.Empty;
         public string Title
         {

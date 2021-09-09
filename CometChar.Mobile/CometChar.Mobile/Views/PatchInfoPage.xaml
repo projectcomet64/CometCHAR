@@ -20,6 +20,7 @@
     </ContentPage.Resources>
 
     <ContentPage.Content>
+        <ScrollView>
         <StackLayout Padding="30,24,30,24" Spacing="10">
             <FlexLayout JustifyContent="SpaceEvenly" AlignContent="Center">
                 <Image Source="cmtpLogo.png" VerticalOptions="CenterAndExpand" WidthRequest="64"></Image>
@@ -31,5 +32,6 @@
             <Label Text="{Binding PatchVersionDescription}" HorizontalTextAlignment="Center"/>
             <Button Text="Select CMTP File..." Command="{Binding OpenFileCmd}"/>
         </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

@@ -9,12 +9,21 @@
         <ResourceDictionary>
             <Color x:Key="Primary">#134CFF</Color>
             <Color x:Key="PrimaryDull">#244ED9</Color>
-            <Color x:Key="PrimaryLight">#5179FF</Color>
+            <Color x:Key="PrimaryLight">#4d68ff</Color>
             <Color x:Key="DarkBG">#131313</Color>
-            <Color x:Key="Accent">#888888</Color>
             <Style TargetType="ContentPage">
                 <Setter Property="BackgroundColor"
                         Value="{StaticResource DarkBG}" />
+            </Style>
+            <Style TargetType="Frame">
+                <Setter Property="BackgroundColor"
+                        Value="{StaticResource DarkBG}" />
+                <Setter Property="BorderColor"
+                        Value="{StaticResource PrimaryDull}" />
+                <Setter Property="HasShadow"
+                        Value="True" />
+                <Setter Property="Padding"
+                        Value="12" />
             </Style>
             <Style TargetType="Grid">
                 <Setter Property="BackgroundColor"

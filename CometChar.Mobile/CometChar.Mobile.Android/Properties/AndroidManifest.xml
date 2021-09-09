@@ -4,5 +4,5 @@
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
-	<application android:label="CometCHAR Patcher" android:theme="@style/MainTheme" android:icon="@drawable/xamarin_logo"></application>
+	<application android:label="CometCHAR Patcher" android:theme="@style/MainTheme" android:icon="@drawable/appicon"></application>
 </manifest>
