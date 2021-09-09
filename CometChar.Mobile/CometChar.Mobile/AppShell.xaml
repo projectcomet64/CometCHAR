@@ -67,6 +67,7 @@ https://docs.microsoft.com/xamarin/xamarin-forms/app-fundamentals/shell/flyout#f
 
     <TabBar>
         <ShellContent Title="About" Icon="icon_about.png" Route="AboutPage" ContentTemplate="{DataTemplate local:AboutPage}" />
+        <ShellContent Title="Patch ROM" Icon="folder_up.png" ContentTemplate="{DataTemplate local:PatchROMPage}" />
         <ShellContent Title="Patch Info" Icon="icon_feed.png" ContentTemplate="{DataTemplate local:PatchInfoPage}" />
     </TabBar>
 

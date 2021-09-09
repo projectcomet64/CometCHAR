@@ -70,6 +70,7 @@ namespace CometChar
 
         }
 
+        //TODO: Make this model use Streams instead of creating them from the filenames.
         public static void PatchROM(string inROM, Stream patchStream, string outROM, IProgress<float> prog)
         {
             PatchInformation pInfo;
