@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometCharGUI", "CometCharGU
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CometChar", "CometChar\CometChar.csproj", "{BC4A44A9-8732-4AC3-8E4D-46ECF87FE01D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometChar.Mobile.Android", "CometChar.Mobile\CometChar.Mobile.Android\CometChar.Mobile.Android.csproj", "{6E744739-24D3-49CC-89FC-4A8E6F23649D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometChar.Mobile", "CometChar.Mobile\CometChar.Mobile\CometChar.Mobile.csproj", "{5C6CE15C-42E1-4529-BA6C-341150B010AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,16 @@ Global
 		{BC4A44A9-8732-4AC3-8E4D-46ECF87FE01D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC4A44A9-8732-4AC3-8E4D-46ECF87FE01D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC4A44A9-8732-4AC3-8E4D-46ECF87FE01D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E744739-24D3-49CC-89FC-4A8E6F23649D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E744739-24D3-49CC-89FC-4A8E6F23649D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E744739-24D3-49CC-89FC-4A8E6F23649D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{6E744739-24D3-49CC-89FC-4A8E6F23649D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E744739-24D3-49CC-89FC-4A8E6F23649D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E744739-24D3-49CC-89FC-4A8E6F23649D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{5C6CE15C-42E1-4529-BA6C-341150B010AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C6CE15C-42E1-4529-BA6C-341150B010AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C6CE15C-42E1-4529-BA6C-341150B010AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C6CE15C-42E1-4529-BA6C-341150B010AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

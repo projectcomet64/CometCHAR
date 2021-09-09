@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CometChar.Mobile.Views.PatchInfoPage"
+             xmlns:vm="clr-namespace:CometChar.Mobile.ViewModels"
+             Title="Patch Information">
+
+    <ContentPage.BindingContext >
+        <vm:PatchInfoViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="BigVersionNumber" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource PrimaryLight}"/>
+                <Setter Property="FontSize" Value="48"/>
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <StackLayout Padding="30,24,30,24" Spacing="10">
+            <FlexLayout JustifyContent="SpaceEvenly" AlignContent="Center">
+                <Image Source="cmtpLogo.png" VerticalOptions="CenterAndExpand" WidthRequest="64"></Image>
+                <StackLayout HorizontalOptions="CenterAndExpand">
+                    <Label Text="Patch version" />
+                    <Label Text="{Binding PatchInfoVersion}" Style="{StaticResource BigVersionNumber}" />
+                </StackLayout>
+            </FlexLayout>
+            <Label Text="{Binding PatchVersionDescription}" HorizontalTextAlignment="Center"/>
+            <Button Text="Select CMTP File..." Command="{Binding OpenFileCmd}"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CometChar.Mobile.Views.SaveAsPage"
+             xmlns:behaviors="clr-namespace:CometChar.Mobile.Behaviors"
+             xmlns:vm="clr-namespace:CometChar.Mobile.ViewModels"
+             xmlns:controls="clr-namespace:CometChar.Mobile.Controls;assembly=CometChar.Mobile">
+
+    <ContentPage.BindingContext >
+        <vm:SaveAsPageViewModel/>
+    </ContentPage.BindingContext>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="FieldHeader" TargetType="Label">
+                <Setter Property="FontSize" Value="12"/>
+            </Style>
+            <Style x:Key="CurrentDirectory" TargetType="Label">
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+            </Style>
+            <Style x:Key="FolderTitle" TargetType="Label">
+                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+            </Style>
+            <Style x:Key="FolderType" TargetType="Label">
+                <Setter Property="FontSize" Value="12"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <StackLayout Padding="20,16">
+        <StackLayout Spacing="2">
+            <Label Text="Current folder:" Style="{StaticResource FieldHeader}" />
+            <Label Text="{Binding CurrentDirectory}" Style="{StaticResource CurrentDirectory}" />
+            <FlexLayout Padding="8" JustifyContent="SpaceEvenly" AlignContent="Center">
+                <Button Text="App Files folder" Command="{Binding CdAppFilesFolderCommand}"></Button>
+                <Button Text="Storage folder" Command="{Binding CdStorageFolder}"></Button>
+            </FlexLayout>
+        </StackLayout>
+        <StackLayout>
+            <Label Text="Save with name:" Style="{StaticResource FieldHeader}"/>
+        <Entry x:Name="tbFileName" Placeholder="Filename..." Text="{Binding FileName, Mode=TwoWay}" />
+        </StackLayout>
+
+        <ListView x:Name="lvDirectoryList"
+            ItemsSource="{Binding Directories, Mode=TwoWay}"
+                  IsGroupingEnabled="false"
+                              CachingStrategy="RecycleElement"
+                 >
+
+            <!--Custom View Cells-->
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell >
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="Start">
+                            <controls:IconView Source="{Binding Image}" Foreground="#366FFF" MinimumWidthRequest="64" WidthRequest="64"></controls:IconView>
+                            <StackLayout HorizontalOptions="EndAndExpand">
+                                <Label Text="{Binding Path}" 
+                   Style="{StaticResource FolderTitle}" LineBreakMode="NoWrap"/>
+                                <Label Text="{Binding Type}" Style="{StaticResource FolderType}"/>
+                            </StackLayout>
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+
+            <ListView.Behaviors>
+                <behaviors:EventToCommandBehavior EventName="ItemTapped" Command="{Binding PushDirectoryCommand}"/>
+            </ListView.Behaviors>
+        </ListView>
+        <FlexLayout Padding="10" JustifyContent="SpaceEvenly">
+            <Button Text="Cancel" Command="{Binding CancelCommand}" />
+            <Button Text="OK" Command="{Binding ConfirmCommand}" />
+        </FlexLayout>
+    </StackLayout>
+</ContentPage>

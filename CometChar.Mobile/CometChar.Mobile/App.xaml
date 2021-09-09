@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Application xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CometChar.Mobile.App">
+    <!--
+        Define global resources and styles here, that apply to all pages in your app.
+    -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#134CFF</Color>
+            <Color x:Key="PrimaryDull">#244ED9</Color>
+            <Color x:Key="PrimaryLight">#5179FF</Color>
+            <Color x:Key="DarkBG">#131313</Color>
+            <Color x:Key="Accent">#888888</Color>
+            <Style TargetType="ContentPage">
+                <Setter Property="BackgroundColor"
+                        Value="{StaticResource DarkBG}" />
+            </Style>
+            <Style TargetType="Grid">
+                <Setter Property="BackgroundColor"
+                        Value="{StaticResource DarkBG}" />
+            </Style>
+            <Style TargetType="StackLayout">
+                <Setter Property="BackgroundColor"
+                        Value="{StaticResource DarkBG}" />
+            </Style>
+            <Style TargetType="RefreshView">
+                <Setter Property="BackgroundColor"
+                        Value="{StaticResource DarkBG}" />
+            </Style>
+
+            <Style TargetType="Label">
+                <Setter Property="TextColor"
+                        Value="#FFF" />
+            </Style>
+
+            <Style TargetType="Entry">
+                <Setter Property="TextColor"
+                        Value="#FFF" />
+                <Setter Property="PlaceholderColor" Value="#30FFFFFF" />
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="TextColor" Value="White"></Setter>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#A03B58B2" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
