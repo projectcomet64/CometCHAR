@@ -53,25 +53,62 @@ namespace CometChar
             return pI;
         }
 
+        /// <summary>
+        /// Checks if a ROM at specified path is Big Endian
+        /// </summary>
+        /// <param name="inROM">Path to ROM</param>
+        /// <returns></returns>
         public static bool CheckROMBigEndian(string inROM)
         {
             using (FileStream romStream = new FileStream(inROM, FileMode.Open, FileAccess.Read))
             {
-                byte[] headerArr = new byte[] { 0x80, 0x37, 0x12, 0x40 };
-                byte[] readArr = new byte[4];
-                romStream.Seek(0x0, SeekOrigin.Begin);
-                romStream.Read(readArr, 0, 4);
-                if (!Enumerable.SequenceEqual(headerArr, readArr))
-                {
-                    return false;
-                }
-                return true;
+                return CheckROMBigEndian(romStream);
             }
-
         }
 
-        //TODO: Make this model use Streams instead of creating them from the filenames.
-        public static void PatchROM(string inROM, Stream patchStream, string outROM, IProgress<float> prog)
+        /// <summary>
+        /// Checks if a ROM is Big Endian
+        /// </summary>
+        /// <param name="inROMStream">The readable and seekable Stream of the input ROM</param>
+        /// <returns></returns>
+        public static bool CheckROMBigEndian(Stream inROMStream)
+        {
+            byte[] headerArr = new byte[] { 0x80, 0x37, 0x12, 0x40 };
+            byte[] readArr = new byte[4];
+            inROMStream.Seek(0x0, SeekOrigin.Begin);
+            inROMStream.Read(readArr, 0, 4);
+            if (!Enumerable.SequenceEqual(headerArr, readArr))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Patches a ROM in memory, returns byte array of patched ROM.
+        /// </summary>
+        /// <param name="inROMStream">The readable and seekable Stream of the input ROM</param>
+        /// <param name="patchStream">The readable and seekable Stream of the patch</param>
+        /// <param name="prog">Progress reporter</param>
+        /// <returns></returns>
+        public static byte[] PatchROM(Stream inROMStream, Stream patchStream, IProgress<float> prog)
+        {
+            MemoryStream _buffer = new MemoryStream((int)inROMStream.Length);
+            inROMStream.CopyTo(_buffer);
+            _buffer.Seek(0, SeekOrigin.Begin);
+            inROMStream.Seek(0, SeekOrigin.Begin);
+            PatchROM(inROMStream, patchStream, _buffer, prog);
+            return _buffer.ToArray();
+        }
+
+        /// <summary>
+        /// Patches a ROM in memory, writes to specified writable stream.
+        /// </summary>
+        /// <param name="inROMStream">The readable and seekable Stream of the input ROM</param>
+        /// <param name="patchStream">The readable and seekable Stream of the patch</param>
+        /// <param name="outROMStream">The writable and seekable Stream of the output ROM</param>
+        /// <param name="prog"></param>
+        public static void PatchROM(Stream inROMStream, Stream patchStream, Stream outROMStream, IProgress<float> prog)
         {
             PatchInformation pInfo;
             pInfo = ReadPatchFile(patchStream);
@@ -79,7 +116,7 @@ namespace CometChar
             MemoryStream uncompS04 = new MemoryStream((int)pInfo.Segment04Length);
             MemoryStream uncompGL = new MemoryStream((int)pInfo.GeoLayoutLength);
 
-            bool validROM = CheckROMBigEndian(inROM);
+            bool validROM = CheckROMBigEndian(inROMStream);
             if (!validROM)
             {
                 throw new InvalidROMException("This ROM is not a Big Endian (z64) ROM.");
@@ -103,119 +140,147 @@ namespace CometChar
             }
             s04comp.Dispose();
 
-            prog?.Report(1.6f);
-            if (File.Exists(outROM))
-            {
-                File.Delete(outROM);
-            }
-            File.Copy(inROM, outROM);
-            prog?.Report(2f);
+            //Writing to ROM str
 
-            //Writing to ROM
-            using (FileStream fs = new FileStream(outROM, FileMode.Open, FileAccess.ReadWrite))
+            outROMStream.Seek(0x2ABCE4, SeekOrigin.Begin);
+            outROMStream.Write(BitConverter.GetBytes(pInfo.GeoLayoutSegOffset), 0, 4);
+            prog?.Report(3f);
+            // Extend S04
+            if ((pInfo.Features & 1) == 1)
             {
-                fs.Seek(0x2ABCE4, SeekOrigin.Begin);
-                fs.Write(BitConverter.GetBytes(pInfo.GeoLayoutSegOffset), 0, 4);
-                prog?.Report(3f);
-                // Extend S04
-                if ((pInfo.Features & 1) == 1)
-                {
-                    fs.Seek(0x2ABCA4, SeekOrigin.Begin);
-                    fs.Write(new byte[] { 0x01, 0x1A, 0x35, 0xB8, 0x01, 0x1F, 0xFF, 0x00 }, 0, 8);
-                }
-                prog?.Report(3.2f);
-                fs.Seek(Task.Run(() => GetSegmentOffset(fs, 04)).Result, SeekOrigin.Begin);
-                fs.Write(uncompS04.GetBuffer(), 0, (int)uncompS04.Length);
-                prog?.Report(3.6f);
-                if ((pInfo.Features & 2) == 0)
-                {
-                    // GL not in Bank 04, write uncompressed GL
-                    fs.Seek(pInfo.GeoLayoutStartMargin, SeekOrigin.Begin);
-                    fs.Write(uncompGL.GetBuffer(), 0, (int)uncompGL.Length);
-                }
-                prog?.Report(3.8f);
-
+                outROMStream.Seek(0x2ABCA4, SeekOrigin.Begin);
+                outROMStream.Write(new byte[] { 0x01, 0x1A, 0x35, 0xB8, 0x01, 0x1F, 0xFF, 0x00 }, 0, 8);
             }
+            prog?.Report(3.2f);
+            outROMStream.Seek(Task.Run(() => GetSegmentOffset(outROMStream, 04)).Result, SeekOrigin.Begin);
+            outROMStream.Write(uncompS04.GetBuffer(), 0, (int)uncompS04.Length);
+            prog?.Report(3.6f);
+            if ((pInfo.Features & 2) == 0)
+            {
+                // GL not in Bank 04, write uncompressed GL
+                outROMStream.Seek(pInfo.GeoLayoutStartMargin, SeekOrigin.Begin);
+                outROMStream.Write(uncompGL.GetBuffer(), 0, (int)uncompGL.Length);
+            }
+            prog?.Report(3.8f);
+
             uncompGL.Dispose();
             uncompS04.Dispose();
             prog?.Report(4);
         }
 
+        //TODO: Make this model use Streams instead of creating them from the filenames.
+        public static void PatchROM(string inROM, Stream patchStream, string outROM, IProgress<float> prog)
+        {
+            if (File.Exists(outROM))
+            {
+                File.Delete(outROM);
+            }
+            File.Copy(inROM, outROM);
+            FileStream _fsOut = new FileStream(outROM, FileMode.Open, FileAccess.ReadWrite);
+            FileStream _fsIn = new FileStream(inROM, FileMode.Open, FileAccess.Read);
+            PatchROM(_fsIn, patchStream, _fsOut, prog);
+            _fsOut.Close();
+            _fsIn.Close();
+            _fsIn.Dispose();
+            _fsOut.Dispose();
+        }
+
+        /// <summary>
+        /// Creates a patch file and writes its output to the given file path.
+        /// </summary>
+        /// <param name="ROMStream">The ROM stream to read from</param>
+        /// <param name="outFile">The path to the patch file to be created</param>
         public static void CreatePatchFile(Stream ROMStream, string outFile)
         {
-            bool GeoLayoutInSeg04 = false;
-            uint features = 0;
             if (File.Exists(outFile))
             {
                 File.Delete(outFile);
             }
-            using (FileStream fs = new FileStream(outFile, FileMode.Create, FileAccess.ReadWrite))
+            FileStream fs = new FileStream(outFile, FileMode.Create, FileAccess.ReadWrite);
+            CreatePatchFile(ROMStream, fs);
+        }
+
+        public static byte[] CreatePatchFile(Stream ROMStream)
+        {
+            MemoryStream _buffer = new MemoryStream();
+            CreatePatchFile(ROMStream, _buffer);
+            return _buffer.ToArray();
+        }
+
+        /// <summary>
+        /// Creates a aptch file and writes its output to the given stream.
+        /// </summary>
+        /// <param name="ROMStream">The ROM stream to read from</param>
+        /// <param name="outStream">The output stream to write to</param>
+        public static void CreatePatchFile(Stream ROMStream, Stream outStream)
+        {
+            bool GeoLayoutInSeg04 = false;
+            uint features = 0;
+
+            long Seg04Offset = Task.Run(() => GetSegmentOffset(ROMStream)).Result;
+            long Seg04Length = Task.Run(() => GetSegmentLength(ROMStream)).Result;
+            GeoLayoutInformation GeoInfo = Task.Run(() => GetGeoLayoutLength(ROMStream)).Result;
+            byte[] GeoLayoutData = new byte[GeoInfo.Length];
+            byte[] Seg04Data = new byte[Seg04Length];
+
+
+            ROMStream.Seek(Seg04Offset, SeekOrigin.Begin);
+            ROMStream.Read(Seg04Data, 0, (int)Seg04Length);
+
+            // Original length of Bank 04 is 0x35378
+            if (Seg04Length > 0x35378)
+                features |= 1;
+
+            if (GeoInfo.StartMargin > Seg04Offset && GeoInfo.StartMargin < Seg04Offset + Seg04Length)
             {
-                long Seg04Offset = Task.Run(() => GetSegmentOffset(ROMStream)).Result;
-                long Seg04Length = Task.Run(() => GetSegmentLength(ROMStream)).Result;
-                GeoLayoutInformation GeoInfo = Task.Run(() => GetGeoLayoutLength(ROMStream)).Result;
-                byte[] GeoLayoutData = new byte[GeoInfo.Length];
-                byte[] Seg04Data = new byte[Seg04Length];
+                GeoLayoutInSeg04 = true;
+                features |= 2;
+            }
+            else
+            {
+                ROMStream.Seek(GeoInfo.StartMargin, SeekOrigin.Begin);
+                ROMStream.Read(GeoLayoutData, 0, (int)GeoInfo.Length);
+            }
 
+            MemoryStream compressedS04 = new MemoryStream();
+            MemoryStream compressedGL = new MemoryStream();
+            // TODO: Implement Checksum
+            // It'll be hard, can't rely on 7z's since it takes too much mem
+            uint CRCChecksum;
+            byte[] GeoLayoutSegAddr = new byte[8];
+            using (MemoryStream ms = new MemoryStream(Seg04Data))
+            {
+                LZMA.Compress(ms, compressedS04, LzmaSpeed.Medium, DictionarySize.Medium);
+                ms.Flush();
+            }
 
-                ROMStream.Seek(Seg04Offset, SeekOrigin.Begin);
-                ROMStream.Read(Seg04Data, 0, (int)Seg04Length);
-
-                // Original length of Bank 04 is 0x35378
-                if (Seg04Length > 0x35378)
-                    features |= 1;
-
-                if (GeoInfo.StartMargin > Seg04Offset && GeoInfo.StartMargin < Seg04Offset + Seg04Length)
+            if (!GeoLayoutInSeg04)
+            {
+                using (MemoryStream ms = new MemoryStream(GeoLayoutData))
                 {
-                    GeoLayoutInSeg04 = true;
-                    features |= 2;
-                }
-                else
-                {
-                    ROMStream.Seek(GeoInfo.StartMargin, SeekOrigin.Begin);
-                    ROMStream.Read(GeoLayoutData, 0, (int)GeoInfo.Length);
-                }
-
-                MemoryStream compressedS04 = new MemoryStream();
-                MemoryStream compressedGL = new MemoryStream();
-                // TODO: Implement Checksum
-                // It'll be hard, can't rely on 7z's since it takes too much mem
-                uint CRCChecksum;
-                byte[] GeoLayoutSegAddr = new byte[8];
-                using (MemoryStream ms = new MemoryStream(Seg04Data))
-                {
-                    LZMA.Compress(ms, compressedS04, LzmaSpeed.Medium, DictionarySize.Medium);
+                    LZMA.Compress(ms, compressedGL, LzmaSpeed.Medium, DictionarySize.Medium);
                     ms.Flush();
                 }
-
-                if (!GeoLayoutInSeg04)
-                {
-                    using (MemoryStream ms = new MemoryStream(GeoLayoutData))
-                    {
-                        LZMA.Compress(ms, compressedGL, LzmaSpeed.Medium, DictionarySize.Medium);
-                        ms.Flush();
-                    }
-                }
-
-                ROMStream.Seek(0x2ABCE0, SeekOrigin.Begin);
-                ROMStream.Read(GeoLayoutSegAddr, 0, 8);
-
-                // Time to write everything
-                fs.Write(ASCII.GetBytes("CMTP".ToCharArray()), 0, 4);
-                fs.Write(new byte[] { 00, 01 }, 0, 2); //CMTP v0.1
-                fs.Write(BitConverter.GetBytes((ushort)features), 0, 2);
-                fs.Write(BitConverter.GetBytes((uint)compressedS04.Length), 0, 4);
-                fs.Write(BitConverter.GetBytes((uint)compressedGL.Length), 0, 4);
-                fs.Write(BitConverter.GetBytes((uint)GeoInfo.StartMargin), 0, 4);
-                fs.Write(BitConverter.GetBytes(Seg04Length), 0, 4);
-                fs.Write(BitConverter.GetBytes(GeoInfo.Length), 0, 4);
-                fs.Write(GeoLayoutSegAddr.Skip(4).ToArray(), 0, 4);
-                fs.Write(compressedS04.GetBuffer(), 0, (int)compressedS04.Length);
-                fs.Write(compressedGL.GetBuffer(), 0, (int)compressedGL.Length);
-                compressedGL.Flush();
-                compressedS04.Flush();
-                ROMStream.Dispose();
             }
+
+            ROMStream.Seek(0x2ABCE0, SeekOrigin.Begin);
+            ROMStream.Read(GeoLayoutSegAddr, 0, 8);
+
+            // Time to write everything
+            outStream.Write(ASCII.GetBytes("CMTP".ToCharArray()), 0, 4);
+            outStream.Write(new byte[] { 00, 01 }, 0, 2); //CMTP v0.1
+            outStream.Write(BitConverter.GetBytes((ushort)features), 0, 2);
+            outStream.Write(BitConverter.GetBytes((uint)compressedS04.Length), 0, 4);
+            outStream.Write(BitConverter.GetBytes((uint)compressedGL.Length), 0, 4);
+            outStream.Write(BitConverter.GetBytes((uint)GeoInfo.StartMargin), 0, 4);
+            outStream.Write(BitConverter.GetBytes(Seg04Length), 0, 4);
+            outStream.Write(BitConverter.GetBytes(GeoInfo.Length), 0, 4);
+            outStream.Write(GeoLayoutSegAddr.Skip(4).ToArray(), 0, 4);
+            outStream.Write(compressedS04.GetBuffer(), 0, (int)compressedS04.Length);
+            outStream.Write(compressedGL.GetBuffer(), 0, (int)compressedGL.Length);
+            compressedGL.Flush();
+            compressedS04.Flush();
+            ROMStream.Dispose();
         }
     }
 }

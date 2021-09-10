@@ -90,8 +90,11 @@ namespace CometChar.Mobile.ViewModels
             ChooseCMTPCommand = new Command(async () => await ChooseCMTP());
             ChooseDestCommand = new Command(async () => await ChooseDest());
             StartPatchCommand = new Command(async () => await StartPatch());
-            MessagingCenter.Subscribe<string, Stream>("save", "CMTP_FILE_SAVE", (a, b) =>
+            MessagingCenter.Subscribe<string, Stream>("save", "CMTP_FILE_SAVE", (sender, arg) =>
             {
+                SavedRomStream?.Close();
+                SavedRomStream?.Dispose();
+                SavedRomStream = arg;
             });
         }
 
@@ -132,7 +135,7 @@ namespace CometChar.Mobile.ViewModels
                 return;
             }
 
-            if (string.IsNullOrEmpty(_savedRomFilepath))
+            if (_savedRomStream == null)
             {
                 await Application.Current.MainPage.DisplayAlert("", $"You have to save the new ROM somewhere!\n\nSelect the ROM save location.", "OK");
                 return;
@@ -172,6 +175,7 @@ namespace CometChar.Mobile.ViewModels
 
             IsPatching = true;
             StatusText = "Checking ROM size";
+            MemoryStream _outLoad;
 
             if ((_fiROM.Length / 1000000) <= 8)
             {
@@ -182,7 +186,7 @@ namespace CometChar.Mobile.ViewModels
                     // the XDelta patch
                     MemoryStream _deltaLoad = new MemoryStream(Properties.Resources.compatible);
                     MemoryStream _romLoad = new MemoryStream(await File.ReadAllBytesAsync(_romFilepath));
-                    MemoryStream _outLoad = new MemoryStream();
+                    _outLoad = new MemoryStream();
                     VCDiff.Decoders.VcDecoder _xdecoder = new VCDiff.Decoders.VcDecoder(_romLoad, _deltaLoad, _outLoad);
                     await _xdecoder.DecodeAsync();
 
@@ -193,20 +197,11 @@ namespace CometChar.Mobile.ViewModels
                     {
                         _outLoad.SetLength(0x3FFFFFF);
                     }
-                    // Patch done, fullpatch, so we will now do the rest
-                    File.WriteAllBytes($"{_romFilepath}.xd.z64", _outLoad.ToArray());
-                    _romFilepath += ".xd.z64";
-                    if (!File.Exists(_romFilepath))
-                    {
-                        await Application.Current.MainPage.DisplayAlert("Unknown error!", $"Patch failed. New file doesn't exist! This must be a bug. Please report it!", "OK");
-                        StatusText = "Ready, but had a patch error.";
-                        return;
-                    }
-                    _fiROM = new FileInfo(_romFilepath);
 
                     _deltaLoad.Dispose();
                     _romLoad.Dispose();
-                    _outLoad.Dispose();
+                    await File.WriteAllBytesAsync(Path.Combine(_exstor.GetPath(), "dummy.z64"), _outLoad.ToArray());
+                    _outLoad = new MemoryStream(await File.ReadAllBytesAsync(Path.Combine(_exstor.GetPath(), "dummy.z64")));
                 }
                 catch
                 {
@@ -214,9 +209,12 @@ namespace CometChar.Mobile.ViewModels
                     StatusText = "Ready, but patching failed.";
                     return;
                 }
+            } else
+            {
+                _outLoad = new MemoryStream(await File.ReadAllBytesAsync(_romFilepath));
             }
 
-            if ((_fiROM.Length / 1000000) > 8 && (_fiROM.Length / 1000000) < 64)
+            if ((_outLoad.Length / 1000000) > 8 && (_outLoad.Length / 1000000) < 64)
             {
                 await Application.Current.MainPage.DisplayAlert("Unsupported ROM", $"The provided ROM appears to be an old hack. Patching to these is not currently supported. Stay tuned!", "OK");
                 return;
@@ -225,10 +223,13 @@ namespace CometChar.Mobile.ViewModels
             StatusText = "Applying CMTP patch";
 
             MemoryStream _cmtpMem = new MemoryStream(await File.ReadAllBytesAsync(_cmtpFilepath));
-            await Task.Run(() => Patch.PatchROM(_romFilepath, _cmtpMem, _savedRomFilepath, null));
+            byte[] resultBytes = await Task.Run(() => Patch.PatchROM(_outLoad, _cmtpMem, null));
+            await SavedRomStream.WriteAsync(resultBytes);
 
             StatusText = "Ready, just finished patching";
             IsPatching = false;
+            _outLoad.Close();
+            _outLoad.Dispose();
             await Application.Current.MainPage.DisplayAlert("", $"Done!", "OK");
         }
 

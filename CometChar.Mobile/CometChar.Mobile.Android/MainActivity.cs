@@ -31,11 +31,8 @@ namespace CometChar.Mobile.Droid
                 case 329:
                     {
                         FileInfo _fi = new FileInfo(data.DataString);
-                        string delta = _fi.Name;
-                        Stream stream = Xamarin.Essentials.Platform.CurrentActivity.ContentResolver.OpenOutputStream(Android.Net.Uri.Parse(data.DataString));
-                        byte[] dat = Encoding.UTF8.GetBytes("Test string...");
-                        stream.Write(dat, 0, dat.Length);
-                        stream.Close();
+                        string delta = Android.Net.Uri.Parse(data.DataString).Path;
+                        Stream stream = Xamarin.Essentials.Platform.AppContext.ContentResolver.OpenOutputStream(Android.Net.Uri.Parse(data.DataString));
                         MessagingCenter.Send("save", "CMTP_FILE_SAVE", stream);
                         break;
                     }
