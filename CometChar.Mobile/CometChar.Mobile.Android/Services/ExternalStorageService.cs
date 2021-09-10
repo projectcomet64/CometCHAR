@@ -14,11 +14,12 @@ namespace CometChar.Mobile.Droid
 {
     public class ExternalStorageService : IExternalStorage
     {
-        public string GetPath()
+        public void SaveAs(string fname)
         {
-            Context context = Android.App.Application.Context;
-            var filePath = context.GetExternalFilesDir("");
-            return filePath.Path;
+            Activity context = Xamarin.Essentials.Platform.CurrentActivity;
+            Intent d = new Intent(Intent.ActionCreateDocument);
+            d.AddCategory(Intent.CategoryOpenable).SetType("file/x-cmtp").PutExtra(Intent.ExtraTitle, fname);
+            context.StartActivityForResult(d, 329);
         }
 
         public bool CanReadExternal()
@@ -31,5 +32,11 @@ namespace CometChar.Mobile.Droid
             return Environment.MediaMounted.Equals(Environment.ExternalStorageState);
         }
 
+        public string GetPath()
+        {
+            Context context = Android.App.Application.Context;
+            var filePath = context.GetExternalFilesDir("");
+            return filePath.Path;
+        }
     }
 }

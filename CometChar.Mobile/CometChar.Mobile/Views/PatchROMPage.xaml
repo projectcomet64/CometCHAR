@@ -51,7 +51,7 @@
                             <Label Text="Save to:" Style="{DynamicResource FieldHeader}"/>
                             <Entry x:Name="tbRomSavePath" IsReadOnly="True" Text="{Binding SavedRomFilepath, Mode=TwoWay, FallbackValue='- No file selected -'}"/>
                         </StackLayout>
-                        <Button x:Name="btnChooseOutput" Clicked="btnChooseOutput_Clicked" Text="Choose Output File" IsEnabled="{Binding IsPatching, Converter={StaticResource revBool}}"></Button>
+                            <Button x:Name="btnChooseOutput"  Command="{Binding ChooseDestCommand}" Text="Choose Output File" IsEnabled="{Binding IsPatching, Converter={StaticResource revBool}}"></Button>
                     </StackLayout>
                 </Frame>
                 <FlexLayout JustifyContent="End" AlignContent="Start" HorizontalOptions="EndAndExpand">

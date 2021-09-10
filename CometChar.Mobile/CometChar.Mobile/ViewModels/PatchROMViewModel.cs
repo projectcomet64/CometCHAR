@@ -7,12 +7,13 @@ using Xamarin.Forms;
 using VCDiff;
 using CometChar;
 using System.Diagnostics;
+using CometChar.Mobile.Services;
 
 namespace CometChar.Mobile.ViewModels
 {
     public class PatchROMViewModel : BaseViewModel
     {
-
+        IExternalStorage _exstor = DependencyService.Get<IExternalStorage>();
         string _statusText = "Ready";
         public string StatusText
         {
@@ -40,6 +41,8 @@ namespace CometChar.Mobile.ViewModels
         string _cmtpFilepath;
 
         string _savedRomFilepath;
+
+        Stream _savedRomStream;
 
         public string RomFilepath
         {
@@ -71,11 +74,25 @@ namespace CometChar.Mobile.ViewModels
             }
         }
 
+        public Stream SavedRomStream
+        {
+            get => _savedRomStream;
+            set
+            {
+                _savedRomStream = value;
+                OnPropertyChanged("SavedRomStream");
+            }
+        }
+
         public PatchROMViewModel()
         {
             ChooseROMCommand = new Command(async () => await ChooseROM());
             ChooseCMTPCommand = new Command(async () => await ChooseCMTP());
+            ChooseDestCommand = new Command(async () => await ChooseDest());
             StartPatchCommand = new Command(async () => await StartPatch());
+            MessagingCenter.Subscribe<string, Stream>("save", "CMTP_FILE_SAVE", (a, b) =>
+            {
+            });
         }
 
         public async Task ChooseROM()
@@ -85,6 +102,11 @@ namespace CometChar.Mobile.ViewModels
             {
                 RomFilepath = _fr.FullPath;
             }
+        }
+
+        public async Task ChooseDest()
+        {
+            _exstor.SaveAs("output.z64");
         }
 
         public async Task ChooseCMTP()
@@ -215,6 +237,8 @@ namespace CometChar.Mobile.ViewModels
         public ICommand ChooseCMTPCommand { get; }
 
         public ICommand StartPatchCommand { get; }
+
+        public ICommand ChooseDestCommand { get; }
 
     }
 }
