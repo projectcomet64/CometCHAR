@@ -19,11 +19,12 @@ namespace CometChar.Mobile.Views
 
         private void btnChooseOutput_Clicked(object sender, EventArgs e)
         {
-            UpdateSavePathAsync("/");
+            // UpdateSavePathAsync("/");
         }
 
         public async Task UpdateSavePathAsync(string path)
         {
+            /*
             MessagingCenter.Subscribe<string, string>("SaveAsModal", "Path", (sender, arg) =>
             {
                 if (arg != null)
@@ -36,7 +37,7 @@ namespace CometChar.Mobile.Views
             );
             SaveAsPage modal = new SaveAsPage();
             await Navigation.PushModalAsync(modal);
-
+            */
         }
     }
 }

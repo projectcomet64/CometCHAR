@@ -44,9 +44,13 @@ namespace CometChar.Mobile.ViewModels
 
         Stream _savedRomStream;
 
+        // friendly rom uri selection status
+        // to be replaced with URI filename once I manage to get that working
+        string _savedRomStatus;
+
         public string RomFilepath
         {
-            get => _romFilepath;
+            get => Path.GetFileName(_romFilepath);
             set
             {
                 _romFilepath = value;
@@ -56,7 +60,7 @@ namespace CometChar.Mobile.ViewModels
 
         public string CmtpFilepath
         {
-            get => _cmtpFilepath;
+            get => Path.GetFileName(_cmtpFilepath);
             set
             {
                 _cmtpFilepath = value;
@@ -64,6 +68,7 @@ namespace CometChar.Mobile.ViewModels
             }
         }
 
+        // Might go unused, but first I need to figure out how to get the filename from an URI
         public string SavedRomFilepath
         {
             get => _savedRomFilepath;
@@ -72,6 +77,14 @@ namespace CometChar.Mobile.ViewModels
                 _savedRomFilepath = value;
                 OnPropertyChanged("SavedRomFilename");
             }
+        }
+
+        public string SavedRomStatus
+        {
+            get {
+                return _savedRomStream == null ? "File to save not yet chosen." : "File to save chosen!";
+            }
+            private set{ }
         }
 
         public Stream SavedRomStream
@@ -90,11 +103,14 @@ namespace CometChar.Mobile.ViewModels
             ChooseCMTPCommand = new Command(async () => await ChooseCMTP());
             ChooseDestCommand = new Command(async () => await ChooseDest());
             StartPatchCommand = new Command(async () => await StartPatch());
+
+            // Subscribe to receive the data from when the user finishes choosing the file of their choice
             MessagingCenter.Subscribe<string, Stream>("save", "CMTP_FILE_SAVE", (sender, arg) =>
             {
                 SavedRomStream?.Close();
                 SavedRomStream?.Dispose();
                 SavedRomStream = arg;
+                OnPropertyChanged("SavedRomStatus");
             });
         }
 
@@ -123,6 +139,7 @@ namespace CometChar.Mobile.ViewModels
 
         public async Task StartPatch()
         {
+            // All guard clauses for safety checks
             if (string.IsNullOrEmpty(_romFilepath))
             {
                 await Application.Current.MainPage.DisplayAlert("", $"ROM path cannot be empty", "OK");
@@ -169,9 +186,11 @@ namespace CometChar.Mobile.ViewModels
             }
             catch
             {
-                await Application.Current.MainPage.DisplayAlert("Invalid ROM", $"The provided ROM file is not a valid Big Endian SM64 ROM.\n\nDecomp ROMs are not supported, and your ROM file has to be Z64. Make sure you also didn't choose a compressed file.", "OK");
+                await Application.Current.MainPage.DisplayAlert("Invalid CMTP file", $"This doesn't appear to be a CMTP file.\n\nMake sure you are using a .cmtp file previously created by somebody with the CometCHAR Patch Suite in desktop.", "OK");
                 return;
             }
+
+            // End of guard clauses
 
             IsPatching = true;
             StatusText = "Checking ROM size";
@@ -179,7 +198,7 @@ namespace CometChar.Mobile.ViewModels
 
             if ((_fiROM.Length / 1000000) <= 8)
             {
-                await Application.Current.MainPage.DisplayAlert("Small ROM detected!", $"An 8MB ROM! We will now patch this ROM and make it 64MB. We will put it in the same location as this one.\n\nThis may take a while. Also, keep it. You will want to use it for future patching.", "OK");
+                await Application.Current.MainPage.DisplayAlert("Small ROM detected!", $"An 8MB ROM! We will now patch this ROM and make it 64MB for the output only.\n\nYour original ROM will remain untouched. This may take a while.", "OK");
                 try
                 {
                     StatusText = "Patching 8MB ROM\nMay freeze!";
@@ -197,29 +216,39 @@ namespace CometChar.Mobile.ViewModels
                     {
                         _outLoad.SetLength(0x3FFFFFF);
                     }
-
+                    // Free mem
                     _deltaLoad.Dispose();
                     _romLoad.Dispose();
+
+                    // For some odd reason I yet cannot understand, perhaps memory management, doing all necessary transformations on memory only
+                    // doesn't work, the ROM offsets are borked.
+                    // Writing to file once and re-reading as file works, though. That's odd.
                     await File.WriteAllBytesAsync(Path.Combine(_exstor.GetPath(), "dummy.z64"), _outLoad.ToArray());
                     _outLoad = new MemoryStream(await File.ReadAllBytesAsync(Path.Combine(_exstor.GetPath(), "dummy.z64")));
+                    File.Delete(Path.Combine(_exstor.GetPath(), "dummy.z64"));
                 }
                 catch
                 {
-                    await Application.Current.MainPage.DisplayAlert("Patching failed", $"Oops! It seems as if patching failed.\n\nKeep in mind this patching will not work with Decomp ROMs. If you believe this is an error, please report this bug.", "OK");
+                    // If at any point this doesn't work
+                    await Application.Current.MainPage.DisplayAlert("Patching failed", $"Oops! It seems as if patching failed.\n\nKeep in mind this patching will not work with Decomp ROMs and you need an extra 64MB of internal storage. If you believe this is an error, please report this bug.", "OK");
                     StatusText = "Ready, but patching failed.";
                     return;
                 }
-            } else
+            }
+            else
             {
+                // Just take the original ROM you were given with no expansion and load itin
                 _outLoad = new MemoryStream(await File.ReadAllBytesAsync(_romFilepath));
             }
 
+            // If 24, 48MB ROM
             if ((_outLoad.Length / 1000000) > 8 && (_outLoad.Length / 1000000) < 64)
             {
                 await Application.Current.MainPage.DisplayAlert("Unsupported ROM", $"The provided ROM appears to be an old hack. Patching to these is not currently supported. Stay tuned!", "OK");
                 return;
             }
 
+            //La Gran Final
             StatusText = "Applying CMTP patch";
 
             MemoryStream _cmtpMem = new MemoryStream(await File.ReadAllBytesAsync(_cmtpFilepath));
@@ -228,6 +257,7 @@ namespace CometChar.Mobile.ViewModels
 
             StatusText = "Ready, just finished patching";
             IsPatching = false;
+            // Free mem
             _outLoad.Close();
             _outLoad.Dispose();
             await Application.Current.MainPage.DisplayAlert("", $"Done!", "OK");

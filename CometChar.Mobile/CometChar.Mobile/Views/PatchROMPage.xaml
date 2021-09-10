@@ -31,7 +31,7 @@
                     <StackLayout>
                         <StackLayout>
                             <Label Text="ROM File:" Style="{DynamicResource FieldHeader}"/>
-                            <Label Text="{Binding RomFilepath, Mode=TwoWay, FallbackValue='- No file selected -'}" Style="{DynamicResource Filename}"/>
+                            <Label Text="{Binding RomFilepath}" Style="{DynamicResource Filename}"/>
                         </StackLayout>
                         <Button Grid.Column="1" Text="Choose ROM" Command="{Binding ChooseROMCommand}" IsEnabled="{Binding IsPatching, Converter={StaticResource revBool}}"></Button>
                     </StackLayout>
@@ -40,7 +40,7 @@
                     <StackLayout>
                         <StackLayout>
                             <Label Text="CMTP Patch File:" Style="{DynamicResource FieldHeader}"/>
-                            <Label Text="{Binding CmtpFilepath, Mode=TwoWay, FallbackValue='- No file selected -'}" Style="{DynamicResource Filename}"/>
+                            <Label Text="{Binding CmtpFilepath}" Style="{DynamicResource Filename}"/>
                         </StackLayout>
                         <Button Text="Choose CMTP file" Command="{Binding ChooseCMTPCommand}" IsEnabled="{Binding IsPatching, Converter={StaticResource revBool}}"></Button>
                     </StackLayout>
@@ -49,8 +49,8 @@
                     <StackLayout>
                         <StackLayout>
                             <Label Text="Save to:" Style="{DynamicResource FieldHeader}"/>
-                            <Entry x:Name="tbRomSavePath" IsReadOnly="True" Text="{Binding SavedRomFilepath, Mode=TwoWay, FallbackValue='- No file selected -'}"/>
-                        </StackLayout>
+                                <Label Text="{Binding SavedRomStatus}" Style="{DynamicResource Filename}"/>
+                            </StackLayout>
                             <Button x:Name="btnChooseOutput"  Command="{Binding ChooseDestCommand}" Text="Choose Output File" IsEnabled="{Binding IsPatching, Converter={StaticResource revBool}}"></Button>
                     </StackLayout>
                 </Frame>
