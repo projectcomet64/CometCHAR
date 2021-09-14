@@ -33,15 +33,7 @@
                     <Label HorizontalOptions="Center"  FontSize="16" Padding="0,24,0,0" Text="Reads CMTP up to v0.1." />
                     <Label HorizontalOptions="Center" HorizontalTextAlignment="Center"  FontSize="16" Padding="0,24,0,0" Text="CMTP file specification by GlitchyPSI. VCDiff library by SnowflakePowered, under APL-2. Compatibility patch uses parts of code from SM64 ROM Manager by Pilzinsel64 and sm64extend by queueRAM." />
                     <FlexLayout Wrap="Wrap" AlignItems="End" JustifyContent="SpaceEvenly">
-                        <Button Margin="0,10,0,0" Text="Donate" 
-                        Command="{Binding OpenDonateCommand}"
-                        BackgroundColor="{StaticResource Primary}"
-                        TextColor="White" />
-                        <Button Margin="0,10,0,0" Text="Patreon" 
-                        Command="{Binding OpenPatreonCommand}"
-                        BackgroundColor="{StaticResource Primary}"
-                        TextColor="White" />
-                        <Button Margin="0,10,0,0" Text="Github repo"
+                         <Button Margin="0,10,0,0" Text="Github repo"
                         BackgroundColor="{StaticResource Primary}"
                                 Command="{Binding OpenGHCommand}"
                         TextColor="White" />
