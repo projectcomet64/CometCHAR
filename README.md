@@ -1,6 +1,8 @@
-# CometCHAR Patcher: GUI and Library
+# CometCHAR Patch Suite: GUI, Android App and Library
 
 ![GitHub All Releases](https://img.shields.io/github/downloads/projectcomet64/CometCHAR/total?logoColor=%23366fff&style=flat-square)
+
+<a href='https://play.google.com/store/apps/details?id=xyz.glitchypsi.cmtppatcher&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
 
 This is the front-end and support library for the CMTP file format, which is a file format designed for easy patching of SM64 characters.
 
