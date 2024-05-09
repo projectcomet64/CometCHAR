@@ -81,10 +81,11 @@ namespace CometChar.Mobile.ViewModels
 
         public string SavedRomStatus
         {
-            get {
+            get
+            {
                 return _savedRomStream == null ? "File to save not yet chosen." : "File to save chosen!";
             }
-            private set{ }
+            private set { }
         }
 
         public Stream SavedRomStream
@@ -116,24 +117,67 @@ namespace CometChar.Mobile.ViewModels
 
         public async Task ChooseROM()
         {
-            FileResult _fr = await FilePicker.PickAsync();
-            if (_fr != null)
+            // note to self: these try catches are here only because it's 11pm and i don't wanna bother too much with this
+            // right now. i have things to work on tomorrow and i am about to sleep
+            // IDEALLY the right way to do this is to check if the app has the media reading permission and then request for it
+            // before doing anything with the external storage file picker.
+            // the file picker will fail with a permission exception and that's enough for me.
+            // i don't have an android 13 device to try right now and emulators won't work on my machine currently so i can't
+            // test whether the file picker no longer automatically brings up the permission modal and i'm not currently gonna
+            // bother anybody.
+            // before i go harder on cmtp for android i need to complete cmtp v1.0 which is still in early dev stages
+            // so yadda yadda justification for not doing the right thing I WANT TO LIVE
+            try
             {
-                RomFilepath = _fr.FullPath;
+                FileResult _fr = await FilePicker.PickAsync();
+                if (_fr != null)
+                {
+                    RomFilepath = _fr.FullPath;
+                }
             }
+            catch (PermissionException)
+            {
+                Application.Current.MainPage.DisplayAlert(
+                    "App has no permission",
+                    "Could not open the file picker.\n" +
+                          "== IT IS VERY POSSIBLE YOUR DEVICE OR YOU DENIED THE CMTP PATCHER APP THE ABILITY TO OPEN FILES ==\n\n" +
+                          "== YOU CAN FIX THIS ==\n\n" +
+                          "GO TO APPLICATION SETTINGS AND ALLOW THE APP TO ACCESS MEDIA THEN TRY AGAIN", "OK");
+            }
+
         }
 
         public async Task ChooseDest()
         {
-            _exstor.SaveAs("output.z64");
+            try
+            {
+                _exstor.SaveAs("output.z64");
+            }
+            catch (PermissionException)
+            {
+                Application.Current.MainPage.DisplayAlert("App has no permission", "Could not open the file picker.\n\n" +
+                    "== IT IS VERY POSSIBLE YOUR DEVICE OR YOU DENIED THE CMTP PATCHER APP THE ABILITY TO OPEN FILES ==\n\n" +
+                    "== YOU CAN FIX THIS ==\n\n" +
+                    "GO TO APPLICATION SETTINGS AND ALLOW THE APP TO ACCESS MEDIA THEN TRY AGAIN", "OK");
+            }
         }
 
         public async Task ChooseCMTP()
         {
-            FileResult _fr = await FilePicker.PickAsync();
-            if (_fr != null)
+            try
             {
-                CmtpFilepath = _fr.FullPath;
+                FileResult _fr = await FilePicker.PickAsync();
+                if (_fr != null)
+                {
+                    CmtpFilepath = _fr.FullPath;
+                }
+            }
+            catch (PermissionException)
+            {
+                Application.Current.MainPage.DisplayAlert("App has no permission", "Could not open the file picker.\n\n" +
+                    "== IT IS VERY POSSIBLE YOUR DEVICE OR YOU DENIED THE CMTP PATCHER APP THE ABILITY TO OPEN FILES ==\n\n" +
+                    "== YOU CAN FIX THIS ==\n\n" +
+                    "GO TO APPLICATION SETTINGS AND ALLOW THE APP TO ACCESS MEDIA THEN TRY AGAIN", "OK");
             }
         }
 

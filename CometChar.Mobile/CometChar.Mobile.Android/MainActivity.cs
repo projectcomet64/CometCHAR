@@ -30,6 +30,8 @@ namespace CometChar.Mobile.Droid
             {
                 case 329:
                     {
+                        if (data == null) break;
+
                         FileInfo _fi = new FileInfo(data.DataString);
                         string delta = Android.Net.Uri.Parse(data.DataString).Path;
                         Stream stream = Xamarin.Essentials.Platform.AppContext.ContentResolver.OpenOutputStream(Android.Net.Uri.Parse(data.DataString));
