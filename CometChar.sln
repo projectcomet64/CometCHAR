@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31624.102
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometCharGUI", "CometCharGUI\CometCharGUI.csproj", "{524DDA95-3BF8-4B91-999C-B93849F2F813}"
 EndProject
@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CometChar", "CometChar\Come
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometChar.Mobile.Android", "CometChar.Mobile\CometChar.Mobile.Android\CometChar.Mobile.Android.csproj", "{6E744739-24D3-49CC-89FC-4A8E6F23649D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CometChar.Mobile", "CometChar.Mobile\CometChar.Mobile\CometChar.Mobile.csproj", "{5C6CE15C-42E1-4529-BA6C-341150B010AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CometChar.Mobile", "CometChar.Mobile\CometChar.Mobile\CometChar.Mobile.csproj", "{5C6CE15C-42E1-4529-BA6C-341150B010AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CometChar.Mobile.Maui", "CometChar.Mobile.Maui\CometChar.Mobile.Maui.csproj", "{361C1CFB-DA90-4370-AA79-F3EFC2D54167}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,12 @@ Global
 		{5C6CE15C-42E1-4529-BA6C-341150B010AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C6CE15C-42E1-4529-BA6C-341150B010AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C6CE15C-42E1-4529-BA6C-341150B010AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{361C1CFB-DA90-4370-AA79-F3EFC2D54167}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{361C1CFB-DA90-4370-AA79-F3EFC2D54167}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{361C1CFB-DA90-4370-AA79-F3EFC2D54167}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{361C1CFB-DA90-4370-AA79-F3EFC2D54167}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{361C1CFB-DA90-4370-AA79-F3EFC2D54167}.Release|Any CPU.Build.0 = Release|Any CPU
+		{361C1CFB-DA90-4370-AA79-F3EFC2D54167}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
